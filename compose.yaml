@@ -1,0 +1,47 @@
+version: '3.5'
+networks:
+  the_continental:
+    name: the_continental
+
+services:
+  mongodb:
+    image : mongo:4.4.6
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+    - ./mongodb:/data/db
+    ports:
+    - 27017:27017
+    restart: unless-stopped
+    networks:
+      - the_continental
+
+  backend:
+    image : thecontinentalbackend
+    container_name: thecontinentalbackend
+    build:
+      context: ./
+      dockerfile: backend.dockerfile
+    working_dir: /var/www
+    volumes:
+      - ./backend/:/var/www
+    ports:
+      - 3020:3000
+    networks:
+      - the_continental
+
+  # frontend:
+  #   image : thecontinentalfrontend
+  #   container_name: thecontinentalfrontend
+  #   build:
+  #     context: ./
+  #     dockerfile: frontend.dockerfile
+  #   working_dir: /var/www
+  #   volumes:
+  #     - ./frontend/:/var/www
+  #   ports:
+  #     - 3010:3000
+
+  
