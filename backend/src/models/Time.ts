@@ -1,14 +1,15 @@
 import mongoose, { Schema } from 'mongoose'
+import moment from 'moment'
 
 // To fix https://github.com/Automattic/mongoose/issues/4291
 mongoose.Promise = global.Promise;
 
 const TimeSchema = new Schema({
   _id: {type: Number, default: 1, required: true },
-  opening_hour: { type: String, default: '8:00' },
-  closing_hour: { type: String, default: '18:00' },
-  created: { type: Date, default: Date.now },
-  updated: { type: Date, default: Date.now }
+  opening_hour: { type: Number, default: 8 },
+  closing_hour: { type: Number, default: 18 },
+  created: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
+  updated: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') }
 }, { collection: 'times' })
 
 export default mongoose.model('Time', TimeSchema)
