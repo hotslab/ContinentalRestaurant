@@ -1,98 +1,103 @@
 
-import Koa, { Context } from 'koa'
+import { Context } from 'koa'
 import jsonWebtoken from 'jsonwebtoken'
 import argon from 'argon2'
-import mongoClient from '../mongodb'
-
-async function getUserByEmail(email: string, dbDatabase: string, dbTable: string) {
-  const db = await mongoClient(dbDatabase)
-  const collection = await db.collection(dbTable)
-  return collection.findOne({email: email})
-}
+import User from '../models/User'
 
 export default {
-  login: async (ctx: Context, next: Koa.Next) => {
-    const user = await getUserByEmail(ctx.request.body.email, 'theContinental', 'users')
+  login: async (ctx: Context) => {
+    const user = await User.findOne({ email: ctx.request.body.email }).select('+password')
     if (!user) {
       ctx.status = 401
-      ctx.body = {
-        error: "Email provided is incorrect"
-      }
+      ctx.body = { error: "User not found" }
       return
     }
-    const { password, ...userInfoWithoutPassword } = user
-    if (await argon.verify(password, ctx.request.body.password)) {
+    if (await argon.verify(user.password, ctx.request.body.password)) {
+      user.password = null
       ctx.status = 200
       ctx.body = {
-        user: userInfoWithoutPassword,
-        token: jsonWebtoken.sign({
-          data: userInfoWithoutPassword,
-        }, process.env.JWT_SECRET || 'shared_secret', { expiresIn: '1h' })
+        user: user,
+        token: jsonWebtoken.sign(
+          { data: user }, 
+          process.env.JWT_SECRET || 'shared_secret', 
+          { expiresIn: process.env.JWT_EXPIRY || '1h' }
+        )
       }
     } else {
       ctx.status = 401
-      ctx.body = {
-        error: "Password is incorrect"
-      }
+      ctx.body = { error: "Password is incorrect" }
     }
   },
-  register: async (ctx: Context, next: Koa.Next): Promise<any> => {
-    if (!ctx.request.body.email || !ctx.request.body.password || !ctx.request.body.email || !ctx.request.body.name || !ctx.request.body.surname) {
+  register: async (ctx: Context): Promise<any> => {
+    if (
+      !ctx.request.body.email 
+      || !ctx.request.body.password 
+      || !ctx.request.body.email 
+      || !ctx.request.body.name 
+      || !ctx.request.body.surname
+      || !ctx.request.body.role
+    ) {
       ctx.status = 400
-      ctx.body = {
-        error: 'Please add all the required fields correctly'
-      }
+      ctx.body = { error: 'Please add all the required fields correctly' }
       return
     }
-    const user = await getUserByEmail(ctx.request.body.email, 'theContinental', 'users')
+    const user = await User.findOne({ email: ctx.request.body.email })
     if (!user) {
-      const db = await mongoClient('theContinental')
-      const collection = db.collection('users')
-      collection.insertOne({ 
+      const user = new User({
         email: ctx.request.body.email,
         name: ctx.request.body.name,
         surname: ctx.request.body.surname,
-        role: ctx.request.body.email,
+        role: ctx.request.body.role,
         password: await argon.hash(ctx.request.body.password)
       })
+      await user.save()
       ctx.status = 200
-      ctx.body = {
-        message: "User registered successfuly"
-      }
+      ctx.body = { message: "User registered successfuly" }
     } else {
       ctx.status = 406
-      ctx.body = {
-        error: "User already exists"
-      }
+      ctx.body = { error: "User already exists" }
     }
   },
-  forgotPassword: async (ctx: Context, next: Koa.Next): Promise<any> => {
+  forgotPassword: async (ctx: Context): Promise<any> => {
     if (!ctx.request.body.email) {
       ctx.status = 400
-      ctx.body = {
-        error: 'Email is required'
-      }
+      ctx.body = { error: 'Email is required' }
       return
     }
-    const user = await getUserByEmail(ctx.request.body.email, 'theContinental', 'users')
-    if (!user) {
-
+    const user = await  User.findOne({ email: ctx.request.body.email })
+    if (user) {
+      ctx.status = 200
+      ctx.body = { user: user }
     } else {
       ctx.status = 401
-      ctx.body = {
-        error: "User not found"
-      }
+      ctx.body = { error: "User not found" }
     }
   },
-  resetPassword: async (): Promise<any> => {
-
+  resetPassword: async (ctx: Context): Promise<any> => {
+    console.log(ctx.request.body)
+    if (!ctx.request.body.password || !ctx.request.body.confirmPassword) {
+      ctx.status = 400
+      ctx.body = { error: 'Password is required' }
+      return
+    }
+    await User.updateOne(
+      { email: ctx.request.body.email }, 
+      { $set: {password: await argon.hash(ctx.request.body.password ) } }
+    )
+    ctx.status = 400
+    ctx.body = { message: `Pasword has been reset for ${ctx.request.body.email} successfuly` }
   },
-  getUsers: (ctx: Context, next: Koa.Next): any => {
-    console.log('CHECKING 2')
-    ctx.body = 'user'
+  index: async (ctx: Context): Promise<any> => {
+    ctx.status = 200
+    ctx.body = { users: await User.find({}) }
   },
-  getUser: (ctx: Context, next: Koa.Next): any => {
-    console.log('CHECKING 3')
-    ctx.body =  'users'
+  show: async (ctx: Context): Promise<any> => {
+    ctx.status = 200
+    ctx.body = { user: await User.findById(ctx.params.id).exec() }
+  },
+  destroy: async (ctx: Context): Promise<any> => {
+    await User.findByIdAndUpdate(ctx.params.id, { isDeleted: true })
+    ctx.status = 200
+    ctx.body = { message: 'User has been deleted successfuly' }
   }
 }
