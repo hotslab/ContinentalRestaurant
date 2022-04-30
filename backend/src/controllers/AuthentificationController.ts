@@ -25,20 +25,19 @@ export default {
       }
     } else {
       ctx.status = 401
-      ctx.body = { error: "Password is incorrect" }
+      ctx.body = { message: "Password is incorrect" }
     }
   },
   register: async (ctx: Context): Promise<any> => {
     if (
-      !ctx.request.body.email 
-      || !ctx.request.body.password 
-      || !ctx.request.body.email 
-      || !ctx.request.body.name 
-      || !ctx.request.body.surname
-      || !ctx.request.body.role
+      !ctx.request.body.email ||
+      !ctx.request.body.password ||
+      !ctx.request.body.email ||
+      !ctx.request.body.name ||
+      !ctx.request.body.surname
     ) {
       ctx.status = 400
-      ctx.body = { error: 'Please add all the required fields correctly' }
+      ctx.body = { message: 'Please add all the required fields correctly' }
       return
     }
     const user = await User.findOne({ email: ctx.request.body.email })
@@ -47,7 +46,7 @@ export default {
         email: ctx.request.body.email,
         name: ctx.request.body.name,
         surname: ctx.request.body.surname,
-        role: ctx.request.body.role,
+        role: 'user',
         password: await argon.hash(ctx.request.body.password)
       })
       await user.save()
@@ -55,13 +54,13 @@ export default {
       ctx.body = { message: "User registered successfuly" }
     } else {
       ctx.status = 406
-      ctx.body = { error: "User already exists" }
+      ctx.body = { message: "User already exists" }
     }
   },
   forgotPassword: async (ctx: Context): Promise<any> => {
     if (!ctx.request.body.email) {
       ctx.status = 400
-      ctx.body = { error: 'Email is required' }
+      ctx.body = { message: 'Email is required' }
       return
     }
     const user = await  User.findOne({ email: ctx.request.body.email })
@@ -70,21 +69,21 @@ export default {
       ctx.body = { user: user }
     } else {
       ctx.status = 401
-      ctx.body = { error: "User not found" }
+      ctx.body = { message: "User not found" }
     }
   },
   resetPassword: async (ctx: Context): Promise<any> => {
     console.log(ctx.request.body)
     if (!ctx.request.body.password || !ctx.request.body.confirmPassword) {
       ctx.status = 400
-      ctx.body = { error: 'Password is required' }
+      ctx.body = { message: 'Password is required' }
       return
     }
     await User.updateOne(
       { email: ctx.request.body.email }, 
       { $set: {password: await argon.hash(ctx.request.body.password ) } }
     )
-    ctx.status = 400
+    ctx.status = 200
     ctx.body = { message: `Pasword has been reset for ${ctx.request.body.email} successfuly` }
   },
   index: async (ctx: Context): Promise<any> => {

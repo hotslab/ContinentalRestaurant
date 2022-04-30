@@ -28,7 +28,7 @@ services:
     volumes:
       - ./backend/:/var/www
     ports:
-      - 3020:3000
+      - 3020:3020
     networks:
       - the_continental
 

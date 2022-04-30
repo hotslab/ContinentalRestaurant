@@ -13,7 +13,8 @@ export default {
       $set: {
         _id: 1,
         opening_hour: ctx.request.body.opening_hour,
-        closing_hour: ctx.request.body.closing_hour
+        closing_hour: ctx.request.body.closing_hour,
+        days_open: ctx.request.body.days_open
       }
     }
     ctx.status = 200

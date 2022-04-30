@@ -3,12 +3,20 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    component: () => import('layouts/UnAuthenticatedLayout.vue'),
+    children: [
+      { path: '', name: 'login', component: () => import('src/pages/UnAuthenticatedPages/LoginPage.vue') },
+      { path: 'register', name: 'register', component: () => import('src/pages/UnAuthenticatedPages/RegisterPage.vue') },
+      { path: 'password-reset', name: 'password-reset', component: () => import('src/pages/UnAuthenticatedPages/PasswordReset.vue') }
+    ],
   },
-
-  // Always leave this as last one,
-  // but you can also remove it
+  {
+    path: '/',
+    component: () => import('layouts/AuthenticatedLayout.vue'),
+    children: [
+      { path: 'tables', name: 'tables', component: () => import('src/pages/AuthenticatedPages/TablesPage.vue') }
+    ],
+  },
   {
     path: '/:catchAll(.*)*',
     component: () => import('pages/ErrorNotFound.vue'),
