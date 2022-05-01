@@ -45,6 +45,7 @@
           :error="v$.registerDetails.confirmPassword.$invalid"
         />
         <q-btn
+          unelevated 
           class="no-shadow q-mt-md"
           color="primary"
           size="md"

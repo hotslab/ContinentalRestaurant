@@ -33,20 +33,40 @@
         :error-message="vuelidateErrors(v$.bookingDetails.people.$silentErrors)"
         :error="v$.bookingDetails.people.$invalid"
       />
+      <q-input 
+        v-model="bookingDetails.date" 
+        mask="date" 
+        :rules="['date']"
+        :error-message="vuelidateErrors(v$.bookingDetails.date.$silentErrors)"
+        :error="v$.bookingDetails.date.$invalid" 
+      >
+        <template v-slot:append>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy ref="qDateProxy" cover transition-show="scale" transition-hide="scale">
+              <q-date v-model="bookingDetails.date">
+                <div class="row items-center justify-end">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+      </q-input>
       <q-select 
-        v-model="bookingDetails.time.value" 
+        v-model="bookingDetails.hour.value" 
         :options="timeSlots" 
         option-value="value"
         option-label="label"
         emit-value
-        label="Time"
-        :error-message="vuelidateErrors(v$.bookingDetails.time.$silentErrors)"
-        :error="v$.bookingDetails.time.$invalid" 
+        label="Hour"
+        :error-message="vuelidateErrors(v$.bookingDetails.hour.$silentErrors)"
+        :error="v$.bookingDetails.hour.$invalid" 
       />
     </q-card-section>
     <q-separator />
     <q-card-actions align="right">
     <q-btn
+        unelevated 
         class="no-shadow q-mt-md"
         color="negative"
         size="md"
@@ -55,11 +75,12 @@
         @click="cancelBooking()"
       />
       <q-btn
+        unelevated 
         class="no-shadow q-mt-md"
         color="primary"
         size="md"
         :no-caps="true"
-        label="Login"
+        label="Create"
         @click="createBooking()"
       />
     </q-card-actions>
@@ -83,7 +104,8 @@ const bookingDetails = {
   surname: ref(null),
   email: ref(null),
   people: ref(null),
-  time: ref(null),
+  date: ref(null),
+  hour: ref(null),
   table_id: ref(props.table?._id),
 }
 const timeSlots: Array<TimeSlot> = [
@@ -103,7 +125,8 @@ const rules = computed(() => {
       surname: { required },
       email: { required, email },
       people: { required, numeric,  minValue: minValue(1),  manValue: maxValue(20) },
-      time: { required, numeric },
+      date: { required },
+      hour: { required, numeric },
     }
   }
 })
@@ -133,7 +156,8 @@ async function createBooking() {
       surname: bookingDetails.surname.value,
       email: bookingDetails.email.value,
       people: bookingDetails.people.value,
-      time: bookingDetails.time.value,
+      date: bookingDetails.date.value,
+      hour: bookingDetails.hour.value,
       table_id: bookingDetails.table_id.value
     }).then(
       response => {

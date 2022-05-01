@@ -22,6 +22,7 @@
           :error="v$.loginDetails.password.$invalid"
         />
         <q-btn
+          unelevated 
           class="no-shadow q-mt-md"
           color="primary"
           size="md"
@@ -48,7 +49,7 @@
 import {ref, computed} from 'vue'
 import { api } from '../../boot/axios'
 import { router } from '../../router'
-import { useStore } from '../../stores/userStore'
+import { useStore } from '../../stores/mainStore'
 import { Loading, useQuasar } from 'quasar'
 import useValidations from '../../composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'

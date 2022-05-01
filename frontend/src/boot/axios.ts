@@ -1,8 +1,7 @@
-import { responseTime } from 'koa-response-time';
 import { boot } from 'quasar/wrappers'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError,  AxiosResponse } from 'axios'
-import { router } from '../router'
-import { useStore } from '../stores/userStore'
+import { router } from 'src/router'
+import { useStore } from 'src/stores/mainStore'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {

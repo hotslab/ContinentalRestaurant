@@ -1,4 +1,5 @@
 export default interface Table{
   _id: string,
-  name: string
+  name: string,
+  description: string
 }

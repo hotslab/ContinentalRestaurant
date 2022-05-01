@@ -24,11 +24,12 @@ app.use(cors())
 app.use(jwt({ secret: `${process.env.JWT_SECRET}` })
 .unless({
   path: [
-    '/',
-    /\/register/, 
     /\/login/,
+    /\/register/, 
     /\/forgot-password/,
-    /\/reset-password/
+    /\/reset-password/,
+    /\/tables/,
+    /\/times/
   ],
 })
 )

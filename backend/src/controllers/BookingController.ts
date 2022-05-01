@@ -34,53 +34,83 @@ async function areTablesAvailableThisHour(ctx: Context): Promise<boolean> {
 
 export default {
   index: async (ctx: Context): Promise<any> => {
-    ctx.status = 200
-    ctx.body = { booking: await Booking.find({}) }
-  },
-  show: async (ctx: Context): Promise<any> => {
-    ctx.status = 200
-    ctx.body = { booking: await Booking.findById(ctx.params.id).exec() }
-  },
-  create: async (ctx: Context): Promise<any> => {
-    if (await isWrongTimeInput(ctx)) return
-    if (await isTableOccupied(ctx)) return
-    const areTablesAvailable = await areTablesAvailableThisHour(ctx)
-    const booking = new Booking({
-      name: ctx.request.body.name,
-      surname: ctx.request.body.surname,
-      email: ctx.request.body.email,
-      people: ctx.request.body.people,
-      time: ctx.request.body.time,
-      status: areTablesAvailable ? 'booked' : 'queued',
-      table_id: ctx.request.body.table_id
-    })
-    booking.save()
-    ctx.status = 200
-    ctx.body = { 
-      booking: booking, 
-      message: areTablesAvailable 
-        ? 'Your booking has been created successfuly' 
-        : `All tables are currently booked for this hour ${ctx.request.body.time}. Your 
-          booking has been added to a waiting list should a slot open, otherwise you 
-          will be automaticaly booked for ${ctx.request.body.time + 1} if tables are available`
+    try {
+      const bookings = await Booking.find({
+        date: { $gte: moment().format('YYYY-MM-DD') },
+        hour: { $gte: moment().format('H') }
+      })
+      ctx.status = 200
+      ctx.body = { bookings: bookings }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
     }
   },
-  update: async (ctx: Context): Promise<any > => {
-    const booking = await Booking.findByIdAndUpdate( ctx.params.idx, { 
-      $set: {
+  show: async (ctx: Context): Promise<any> => {
+    try {
+      ctx.status = 200
+      ctx.body = { booking: await Booking.findById(ctx.params.id).exec() }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
+  },
+  create: async (ctx: Context): Promise<any> => {
+    try {
+      if (await isWrongTimeInput(ctx)) return
+      if (await isTableOccupied(ctx)) return
+      const areTablesAvailable = await areTablesAvailableThisHour(ctx)
+      const booking = new Booking({
         name: ctx.request.body.name,
         surname: ctx.request.body.surname,
         email: ctx.request.body.email,
-        people: ctx.request.body.people
+        people: ctx.request.body.people,
+        date: ctx.request.body.date,
+        hour: ctx.request.body.hour,
+        status: areTablesAvailable ? 'booked' : 'queued',
+        table_id: ctx.request.body.table_id
+      })
+      booking.save()
+      ctx.status = 200
+      ctx.body = { 
+        booking: booking, 
+        message: areTablesAvailable 
+          ? 'Your booking has been created successfuly' 
+          : `All tables are currently booked for this hour ${ctx.request.body.time}. Your 
+            booking has been added to a waiting list should a slot open, otherwise you 
+            will be automaticaly booked for ${ctx.request.body.time + 1} if tables are available`
       }
-    })
-    ctx.status = 200
-    ctx.body = { booking: booking, message: 'Booking has been updated succesfully' }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
+  },
+  update: async (ctx: Context): Promise<any > => {
+    try {
+      const booking = await Booking.findByIdAndUpdate( ctx.params.idx, { 
+        $set: {
+          name: ctx.request.body.name,
+          surname: ctx.request.body.surname,
+          email: ctx.request.body.email,
+          people: ctx.request.body.people
+        }
+      })
+      ctx.status = 200
+      ctx.body = { booking: booking, message: 'Booking has been updated succesfully' }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
   },
   destroy: async (ctx: Context): Promise<any> => {
-    const booking = await Booking.findByIdAndUpdate(ctx.params.idx, { $set: { status: 'canceled' }})
-    await booking.save()
-    ctx.status = 200
-    ctx.body = { message: 'Booking has been canceled successfuly' }
+    try {
+      const booking = await Booking.findByIdAndUpdate(ctx.params.idx, { $set: { status: 'canceled' }})
+      await booking.save()
+      ctx.status = 200
+      ctx.body = { message: 'Booking has been canceled successfuly' }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
   }
 }

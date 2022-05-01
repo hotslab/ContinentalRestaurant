@@ -37,6 +37,7 @@
       </q-card-section>
       <div class="flex justify-between items-center">
         <q-btn
+          unelevated 
           class="no-shadow q-mt-md"
           color="negative"
           size="md"
@@ -45,6 +46,7 @@
           @click="goTo('login')"
         />
         <q-btn
+          unelevated 
           class="no-shadow q-mt-md"
           color="primary"
           size="md"

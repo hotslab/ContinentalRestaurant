@@ -6,9 +6,12 @@ mongoose.Promise = global.Promise;
 
 const TableSchema = new Schema({
   name: { type: String, required: true, unique: true },
+  description: { type: String, required: true },
   isDeleted: { type: Boolean, default: false },
   created: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') },
   updated: { type: Date, default: moment().format('YYYY-MM-DD HH:mm:ss') }
 }, { collection: 'tables' })
 
 export default mongoose.model('Table', TableSchema)
+
+export const TableModel = { Table: TableSchema }

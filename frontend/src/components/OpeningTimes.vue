@@ -36,7 +36,8 @@
     </q-card-section>
     <q-separator />
     <q-card-actions align="right">
-    <q-btn
+      <q-btn
+        unelevated 
         class="no-shadow q-mt-md"
         color="negative"
         size="md"
@@ -45,6 +46,7 @@
         @click="cancelEditTimes()"
       />
       <q-btn
+        unelevated 
         class="no-shadow q-mt-md"
         color="primary"
         size="md"
@@ -65,6 +67,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Time from 'src/models/Time'
 import TimeSlot from 'src/models/TimeSlot'
+import { useStore } from 'src/stores/mainStore'
 
 const emit = defineEmits(['cancel-times'])
 
@@ -107,6 +110,7 @@ const rules = computed(() => {
 })
 
 const $q = useQuasar()
+const $store = useStore()
 const v$ = useVuelidate(rules, { openingHour, closingHour })
 const { passValidation, vuelidateErrors } = useValidations()
 
@@ -127,6 +131,7 @@ async function getTimes() {
   $q.loading.show({delay:100})
     await api.get('times').then(
       response => {
+        $store.setTime(response.data.time)
         timeDetails.value = response.data.time
         openingHour.value = timeDetails.value?.opening_hour
         closingHour.value = timeDetails.value?.closing_hour
@@ -145,7 +150,8 @@ async function updateTimes() {
       closing_hour: closingHour.value,
       days_open: daysOpen.value,
     }).then(
-      () => {
+      response => {
+        $store.setTime(response.data.time)
         $q.loading.hide()
         notification('Opening times have been updated successfuly', 'success')
         cancelEditTimes()

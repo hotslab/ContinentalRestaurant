@@ -2,57 +2,50 @@
   <q-page>
     <div class="full-width">
       <q-card flat inline class="full-width q-mt-lg bg-white q-pa-sm-md q-pa-none">
-        <q-card-section class=" full-width">
+        <q-card-section class="full-width flex justify-between items-center">
           <h5 class="text-primary text-weight-light no-margin">Tables {{tables.length}}</h5>
           <q-btn
+            v-if="$store.$state.user && $store.$state.user.role == 'manager' "
+            unelevated
             class="no-shadow q-mt-md"
             color="primary"
             size="md"
             :no-caps="true"
             label="Create Table"
-            @click="openCreateTableModal()"
+            @click="openCreateOrUpdateTableModal()"
           />
+        </q-card-section>
+        <q-card-section class="full-width flex justify-between items-center">
+          <p>
+            Book your table below. Please note tables are booked in advance for the next hour up until closing time. You cannot book for the current hour. <br/>
+            If your tables was already booked by another person you will be put in a wating queue should it be cancelled before the dining session starts.   
+          </p>
         </q-card-section>
       </q-card>
     </div>
     <div class="q-pa-md row items-start q-gutter-md">
       <q-card class="my-card" v-for="(table, index) in tables" :key="index">
         <q-img :src="getRandonPic()" />
-        <q-card-section>
-          <q-btn
-            fab
-            color="primary"
-            icon="place"
-            class="absolute"
-            style="top: 0; right: 12px; transform: translateY(-50%);"
-          />
-
-          <div class="row no-wrap items-center">
-            <div class="col text-h6 ellipsis">
-              The Continental
-            </div>
-            <div class="col-auto text-grey text-caption q-pt-md row no-wrap items-center">
-              <q-icon name="place" />
-              250 ft
-            </div>
-          </div>
-
-          <q-rating v-model="rating" max="5" size="32px" />
-        </q-card-section>
         <q-card-section class="q-pt-none">
-          <div class="text-subtitle1">
+          <div class="col text-h6 ellipsis">
             {{table.name}}
           </div>
           <div class="text-caption text-grey">
-            Small plates, salads & sandwiches in an intimate setting.
+            {{ table.description || 'No details provided' }}
           </div>
+          <q-rating v-model="rating" max="5" size="32px" />
         </q-card-section>
 
         <q-separator />
 
-        <q-card-actions>
-          <q-btn flat round icon="event" />
-          <q-btn flat color="primary" @click="openReservationModal(table)">
+        <q-card-actions align="right">
+          <q-btn unelevated color="negative" @click="deleteTable(table)">
+            Delete
+          </q-btn>
+          <q-btn unelevated color="secondary" @click="openCreateOrUpdateTableModal(table)">
+            Edit
+          </q-btn>
+          <q-btn unelevated color="primary" @click="openReservationModal(table)">
             Reserve
           </q-btn>
         </q-card-actions>
@@ -71,23 +64,25 @@
   <q-dialog persistent v-model="showReservationModal" style="width: 500px">
     <CreateBooking @cancel-booking="e => closeReservation(e)" :table="selectedTable" />
   </q-dialog>
-  <q-dialog persistent v-model="showCreateTableModal" style="width: 500px">
-    <CreateTable @cancel-table="e => closeTableCreation(e)" />
+  <q-dialog persistent v-model="showCreateOrUpdateTableModal" style="width: 500px">
+    <CreateOrUpdateTable @cancel-table="e => closeTableCreationOrUpdate(e)" :table="selectedTable" :editing="isEditingTable" />
   </q-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import CreateBooking from '../../components/CreateBooking.vue'
-import CreateTable from 'src/components/CreateTable.vue'
-import { api } from '../../boot/axios'
+import CreateBooking from 'src/components/CreateBooking.vue'
+import CreateOrUpdateTable from 'src/components/CreateOrUpdateTable.vue'
+import { api } from 'src/boot/axios'
 import { Loading } from 'quasar'
-import Table from '../../models/Table'
+import Table from 'src/models/Table'
+import { useStore } from 'src/stores/mainStore'
 
 let tables = ref<Array<Table>>([])
 const rating  = 4
 const showReservationModal = ref<boolean>(false)
-const showCreateTableModal = ref<boolean>(false)
+const showCreateOrUpdateTableModal = ref<boolean>(false)
+const isEditingTable = ref<boolean>(false)
 const selectedTable = ref<Table | null>(null)
 const pics = [
    './foodpics/001.jpg',
@@ -95,6 +90,8 @@ const pics = [
    './foodpics/003.jpg',
    './foodpics/004.jpg',
 ]
+
+const $store = useStore()
 
 function getRandonPic() {
   return pics[Math.floor((Math.random()*pics.length))]
@@ -111,17 +108,25 @@ function closeReservation(refreshTables: boolean) {
   if (refreshTables) getTables()
 }
 
-function openCreateTableModal() {
-  showCreateTableModal.value = true
+function openCreateOrUpdateTableModal(table: Table | null = null) {
+  showCreateOrUpdateTableModal.value = true
+  selectedTable.value = table
+  if (table) isEditingTable.value = true
 }
 
-function closeTableCreation(refreshTables: boolean) {
-  showCreateTableModal.value = false
+function closeTableCreationOrUpdate(refreshTables: boolean) {
+  showCreateOrUpdateTableModal.value = false
+  selectedTable.value = null
+  isEditingTable.value = false
   if (refreshTables) getTables()
 }
 
+function deleteTable() {
+  //
+}
+
 async function getTables() {
-  Loading.show({delay:400})
+  Loading.show({delay:100})
   await api.get('tables').then(
     response => {
       Loading.hide()
@@ -141,6 +146,5 @@ onMounted(() => {
 
 <style lang="sass" scoped>
 .my-card
-  width: 100%
-  max-width: 250px
+  width: 300px
 </style>
