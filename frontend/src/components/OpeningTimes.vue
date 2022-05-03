@@ -85,19 +85,19 @@ const dayOptions: Array<{label: string, value: string}> = [
   {label:'Sunday', value: 'sunday'}
 ]
 const timeSlots: Array<TimeSlot> = [
-  ...Array(23).fill().map((_, index) => {
+  ...Array(24).fill(null).map((_, index) => {
     const runningTotal = index + 1
     return {
-      label: runningTotal < 10 ? `0${runningTotal}:00` : `${runningTotal}:00`,
+      label: runningTotal == 24 ? '00:00' : (runningTotal < 10 ? `0${runningTotal}:00` : `${runningTotal}:00`),
       value: runningTotal
     }
   })
 ]
-const validateOpeningHour = (param: number | any) => helpers.withParams(
+const validateOpeningHour = (param: number) => helpers.withParams(
   { param },
   (value: number) => value < param
 )
-const validateClosingHour = (param: number | any) => helpers.withParams(
+const validateClosingHour = (param: number) => helpers.withParams(
   { param },
   (value: number) => value > param
 )
@@ -128,7 +128,7 @@ function notification(message: string, type: string) {
 }
 
 async function getTimes() {
-  $q.loading.show({delay:100})
+  $q.loading.show()
     await api.get('times').then(
       response => {
         $store.setTime(response.data.time)
@@ -144,7 +144,7 @@ async function getTimes() {
 
 async function updateTimes() {
   await passValidation(v$.value).then(async () => {
-    $q.loading.show({delay:100})
+    $q.loading.show()
     await api.post('times', {
       opening_hour: openingHour.value,
       closing_hour: closingHour.value,
@@ -158,9 +158,7 @@ async function updateTimes() {
       },
       error => {
         let errorMessage = null
-        if (error.data?.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
+        if (error.response) {
           errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request

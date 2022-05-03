@@ -34,18 +34,22 @@ api.interceptors.response.use(
   (response: AxiosResponse) => response,
   (error: AxiosError) => {
     if (error.response && error.response.data) {
-      console.error(`[Axios Error]`, error.response)
+      console.error('[Axios Error]', error.response)
       checkIfUnauthorised(error)
     } else {
-      console.error(`Unknown error`, error)
+      console.error('Unknown error', error)
     }
     return Promise.reject(error)
   }
 )
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function checkIfUnauthorised(error: any) {
-  if (error.response.data.error == 'Authentication Error') 
+  const authErrors = ['Authentication Error', 'jwt expired']
+  if (authErrors.includes(error.response.data.error)) {
+    $store.setUser(null)
     return router.push({ name: 'login' })
+  } 
 }
 
 

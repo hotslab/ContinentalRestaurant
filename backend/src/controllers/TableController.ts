@@ -1,20 +1,46 @@
 import { Context } from 'koa'
 import Table from '../models/Table'
 import Booking from '../models/Booking'
+import { BookingModel } from '../models/Booking'
 import moment from 'moment'
+
+interface TableTimeSlot {
+  bookings: any[],
+  queued: number,
+  booked: number,
+  hour: number,
+  time_range: string,  
+  table: string
+}
+
+async function structedTableTimeSlotData(queryParams: any, hour: number): Promise<TableTimeSlot> {
+  const bookings = await Booking.find({
+    table: queryParams.tableId,
+    status: { $in: [ "queued", "booked" ] },
+    date: queryParams.date,
+    hour: hour
+  })
+  const startHour = hour == 24 ? '00:00' : (hour < 10 ? `0${hour}:00` : `${hour}:00`)
+  const endHour = (hour + 1) == 24 ? '00:00' : ( (hour + 1) == 25 ? '01:00' : ((hour + 1) < 10 ? `0${(hour + 1)}:00` : `${(hour + 1)}:00`))
+  return { 
+    bookings: bookings,
+    queued: bookings.filter(e => e.status == 'queued').length,
+    booked:bookings.filter(e => e.status == 'booked').length,
+    hour: hour,
+    time_range: `${startHour} - ${endHour}`,  
+    table: queryParams.tableId
+  }
+}
 
 export default {
   index: async (ctx: Context) => {
     try {
       ctx.status = 200
-      ctx.body = { tables: await Table.find({}).sort({created: -1}) }
+      ctx.body = { tables: await Table.find({isDeleted: false}).sort({created: -1}) }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }
     }
-  },
-  show:async (ctx: Context) => {
-    //
   },
   create: async (ctx: Context): Promise<any> => {
     try {
@@ -52,6 +78,28 @@ export default {
       await Table.findByIdAndUpdate(ctx.params.id, { isDeleted: true })
       ctx.status = 200
       ctx.body = { message: 'Table deleted successfuly' }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
+  },
+  getTableTimeSlots: async (ctx: Context): Promise<void> => {
+    try {
+      const req: any = ctx.request.query
+      if ((new Date((new Date()).setHours(0,0,0,0))).getTime() > (new Date(req.date)).getTime()) {
+        ctx.status = 400
+        ctx.body = { message: `The date of ${req.date} you have selected has already passed. Please choose a current date` }
+        return
+      }
+      let tableTimeSlots: Array<TableTimeSlot | []> = []
+      for (let index = (req.openingHour - 1); index < req.closingHour; index++) {
+        const hour = index + 1
+        if (req.date == moment().format('YYYY-MM-DD')) {
+          if (hour > parseInt(moment().format('H'))) tableTimeSlots.push(await structedTableTimeSlotData(req, hour))
+        } else tableTimeSlots.push(await structedTableTimeSlotData(req, hour))
+      }
+      ctx.status = 200
+      ctx.body = { tableTimeSlotsToday: tableTimeSlots }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }

@@ -39,7 +39,7 @@
         <q-separator />
 
         <q-card-actions align="right">
-          <q-btn unelevated color="negative" @click="deleteTable(table)">
+          <q-btn unelevated color="negative" @click="confirmDeleteTable(table)">
             Delete
           </q-btn>
           <q-btn unelevated color="secondary" @click="openCreateOrUpdateTableModal(table)">
@@ -67,6 +67,21 @@
   <q-dialog persistent v-model="showCreateOrUpdateTableModal" style="width: 500px">
     <CreateOrUpdateTable @cancel-table="e => closeTableCreationOrUpdate(e)" :table="selectedTable" :editing="isEditingTable" />
   </q-dialog>
+  <q-dialog persistent v-model="showTableDeleteModal" style="width: 500px">
+    <q-card>
+      <q-card-section>
+        Are you sure to delete {{ selectedTable?.name || 'table' }} ?
+      </q-card-section>
+      <q-card-actions align="right">
+        <q-btn unelevated color="negative" @click="closeDeleteTable()">
+          Cancel
+        </q-btn>
+        <q-btn unelevated color="primary" @click="deleteTable()">
+          Delete
+        </q-btn>
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script setup lang="ts">
@@ -74,24 +89,29 @@ import { ref, onMounted } from 'vue'
 import CreateBooking from 'src/components/CreateBooking.vue'
 import CreateOrUpdateTable from 'src/components/CreateOrUpdateTable.vue'
 import { api } from 'src/boot/axios'
-import { Loading } from 'quasar'
+import { useQuasar } from 'quasar'
 import Table from 'src/models/Table'
 import { useStore } from 'src/stores/mainStore'
+import Booking from 'src/models/Booking'
+import { router } from 'src/router'
 
 let tables = ref<Array<Table>>([])
 const rating  = 4
 const showReservationModal = ref<boolean>(false)
 const showCreateOrUpdateTableModal = ref<boolean>(false)
+const showTableDeleteModal = ref<boolean>(false)
 const isEditingTable = ref<boolean>(false)
 const selectedTable = ref<Table | null>(null)
+const urlPath = `${location.protocol}//${location.hostname}${`:${location.port}` || ''}`
 const pics = [
-   './foodpics/001.jpg',
-   './foodpics/002.jpg',
-   './foodpics/003.jpg',
-   './foodpics/004.jpg',
+  `${urlPath}/foodpics/001.jpg`,
+  `${urlPath}/foodpics/002.jpg`,
+  `${urlPath}/foodpics/003.jpg`,
+  `${urlPath}/foodpics/004.jpg`,
 ]
 
 const $store = useStore()
+const $q = useQuasar()
 
 function getRandonPic() {
   return pics[Math.floor((Math.random()*pics.length))]
@@ -102,10 +122,10 @@ function openReservationModal(table: Table) {
   showReservationModal.value = true
 }
 
-function closeReservation(refreshTables: boolean) {
+function closeReservation(newBooking: Booking | null = null) {
   selectedTable.value = null
   showReservationModal.value = false
-  if (refreshTables) getTables()
+  if (newBooking) router.push({name: 'booking', params: {id: newBooking._id } })
 }
 
 function openCreateOrUpdateTableModal(table: Table | null = null) {
@@ -121,19 +141,57 @@ function closeTableCreationOrUpdate(refreshTables: boolean) {
   if (refreshTables) getTables()
 }
 
-function deleteTable() {
-  //
+
+function confirmDeleteTable(table: Table | null) {
+  showTableDeleteModal.value = true
+  selectedTable.value = table
+}
+
+function closeDeleteTable() {
+  selectedTable.value = null
+  showTableDeleteModal.value = false
+}
+
+function notification(message: string, type: string) {
+  $q.notify({
+    message: message,
+    color: type == 'error' ? 'red' : 'cyan',
+    timeout: 2000,
+    position: 'top'
+  })
+}
+
+async function deleteTable() {
+  $q.loading.show()
+  await api.delete(`tables/${selectedTable.value?._id}`).then(
+    () => {
+      closeDeleteTable()
+      getTables()
+    },
+    error => {
+      $q.loading.hide()
+      let errorMessage = null
+      if (error.response) {
+        errorMessage = error.response.data.message
+      } else if (error.request) {
+        errorMessage = error.request
+      } else {
+        errorMessage = error.message
+      }
+      notification(errorMessage, 'error')
+    }
+  )
 }
 
 async function getTables() {
-  Loading.show({delay:100})
+  $q.loading.show()
   await api.get('tables').then(
     response => {
-      Loading.hide()
+      $q.loading.hide()
       tables.value = response.data.tables
     },
     error => {
-      Loading.hide()
+      $q.loading.hide()
       console.log(error)
     }
   )

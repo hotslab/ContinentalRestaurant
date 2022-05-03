@@ -21,10 +21,10 @@ router.post('/times', TimeController.createOrUpdate)
 
 // table
 router.get('/tables', TableController.index)
-router.get('/tables/:id', TableController.show)
 router.post('/tables', TableController.create)
 router.put('/tables/:id', TableController.update)
 router.del('/tables/:id', TableController.destroy)
+router.get('/table-time-slots', TableController.getTableTimeSlots)
 
 // booking
 router.get('/bookings', BookingController.index)

@@ -123,9 +123,7 @@ async function forgotPassword(): Promise<void> {
       error => { 
         Loading.hide()
         let errorMessage = null
-        if (error.data?.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
+        if (error.response) {
           errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request
@@ -154,15 +152,12 @@ async function resetPassword(): Promise<void> {
       error => { 
         Loading.hide()
         let errorMessage = null
-        if (error.data?.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
+        if (error.response) {
           errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request
         } else {
           errorMessage = error.message
-          notification(errorMessage, 'error')
         }
       }
     )

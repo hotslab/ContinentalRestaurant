@@ -5,6 +5,7 @@ import 'dotenv/config'
 import User from '../models/User'
 import Time from '../models/Time'
 import Table from '../models/Table'
+import '../utils/timezone'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })

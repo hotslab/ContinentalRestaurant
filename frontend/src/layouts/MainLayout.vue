@@ -30,7 +30,7 @@
           <SideBar />  
         </q-scroll-area>
         <SideBar v-else />
-        <q-img v-if="$store.$state.user" class="absolute-top" src="foodpics/004.jpg" dimmed style="height: 150px">
+        <q-img v-if="$store.$state.user" class="absolute-top" :src="getRandonPic()" dimmed style="height: 150px">
           <div class="absolute-bottom bg-transparent">
             <q-avatar size="56px" class="q-mb-sm">
               <img src="https://cdn.quasar.dev/img/boy-avatar.png">
@@ -56,13 +56,22 @@ import SideBar from 'src/components/SideBar.vue'
 import { api } from 'src/boot/axios'
 
 const leftDrawerOpen = ref(false)
+const urlPath = `${location.protocol}//${location.hostname}${`:${location.port}` || ''}`
+const pics = [
+  `${urlPath}/foodpics/001.jpg`,
+  `${urlPath}/foodpics/002.jpg`,
+  `${urlPath}/foodpics/003.jpg`,
+  `${urlPath}/foodpics/004.jpg`,
+]
 
 const $store = useStore()
 
 function toggleLeftDrawer () {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
-
+function getRandonPic() {
+  return pics[Math.floor((Math.random()*pics.length))]
+}
 async function getTimes() {
   await api.get('times').then(
     response => $store.setTime(response.data.time),

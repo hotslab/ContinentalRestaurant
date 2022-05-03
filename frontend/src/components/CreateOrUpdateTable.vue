@@ -81,7 +81,7 @@ function notification(message: string, type: string) {
 
 async function updateTable() {
   await passValidation(v$.value).then(async () => {
-    $q.loading.show({delay:100})
+    $q.loading.show()
     await api.put(`tables/${props.table._id}`, {
       name: name.value,
       description: description.value
@@ -94,9 +94,7 @@ async function updateTable() {
       error => {
         $q.loading.hide()
         let errorMessage = null
-        if (error.data?.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
+        if (error.response) {
           errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request
@@ -111,7 +109,7 @@ async function updateTable() {
 
 async function createTable() {
   await passValidation(v$.value).then(async () => {
-    $q.loading.show({delay:100})
+    $q.loading.show()
     await api.post('tables', {
       name: name.value,
       description: description.value
@@ -124,9 +122,7 @@ async function createTable() {
       error => {
         $q.loading.hide()
         let errorMessage = null
-        if (error.data?.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
+        if (error.response) {
           errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request

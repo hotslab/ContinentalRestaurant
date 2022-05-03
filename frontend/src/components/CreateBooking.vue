@@ -1,5 +1,62 @@
 <template>
-  <q-card style="width:400px">
+  <q-card v-if="!showBookingSection" style="width: 500px">
+    <q-card-section class="flex justify-between items-center">
+      <h6 class="text-primary text-weight-light no-margin">Booking Date</h6>
+      <q-input v-model="searchDate">
+        <template v-slot:append>
+          <q-icon name="event" class="cursor-pointer">
+            <q-popup-proxy ref="qDateProxy" cover transition-show="scale" transition-hide="scale">
+              <q-date :navigation-min-year-month="moment().format('YYYY/MM')" v-model="searchDate" mask="YYYY-MM-DD" >
+                <div class="row items-center justify-end">
+                  <q-btn v-close-popup label="Close" color="primary" flat />
+                </div>
+              </q-date>
+            </q-popup-proxy>
+          </q-icon>
+        </template>
+      </q-input>
+    </q-card-section>
+    <q-card-section>
+      <q-toolbar class="bg-primary text-white shadow-2">
+        <q-toolbar-title>Available Time Slots for {{ table.name }}</q-toolbar-title>
+      </q-toolbar>
+      <q-list bordered separator>
+        <q-item v-for="(timeSlot, index) in tableTimeSlotsToday" :key="index">
+          <q-item-section top avatar>
+            <q-avatar color="secondary" text-color="white" icon="restaurant" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>{{ timeSlot.time_range }} at {{ searchDate }}</q-item-label>
+            <q-item-label caption lines="2">Booked - {{ timeSlot.booked }}</q-item-label>
+            <q-item-label caption lines="2">Waiting List - {{ timeSlot.queued }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side top>
+            <q-btn 
+              unelevated 
+              color="primary"
+              class="no-shadow q-mt-md"
+              label="Book"
+              @click="chooseTimeSlot(timeSlot)"
+            />
+          </q-item-section>
+        </q-item>
+      </q-list>
+    </q-card-section>
+    <q-card-actions align="right">
+      <q-btn
+        unelevated 
+        class="no-shadow q-mt-md"
+        color="negative"
+        size="md"
+        :no-caps="true"
+        label="Cancel"
+        @click="cancelBooking()"
+      />
+    </q-card-actions>
+  </q-card>
+  <q-card v-else style="width:400px">
     <q-card-section>
       <h6 class="text-primary text-weight-light no-margin">Reserve {{ table?.name || 'Table' }}</h6>
     </q-card-section>
@@ -33,39 +90,10 @@
         :error-message="vuelidateErrors(v$.bookingDetails.people.$silentErrors)"
         :error="v$.bookingDetails.people.$invalid"
       />
-      <q-input 
-        v-model="bookingDetails.date" 
-        mask="date" 
-        :rules="['date']"
-        :error-message="vuelidateErrors(v$.bookingDetails.date.$silentErrors)"
-        :error="v$.bookingDetails.date.$invalid" 
-      >
-        <template v-slot:append>
-          <q-icon name="event" class="cursor-pointer">
-            <q-popup-proxy ref="qDateProxy" cover transition-show="scale" transition-hide="scale">
-              <q-date v-model="bookingDetails.date">
-                <div class="row items-center justify-end">
-                  <q-btn v-close-popup label="Close" color="primary" flat />
-                </div>
-              </q-date>
-            </q-popup-proxy>
-          </q-icon>
-        </template>
-      </q-input>
-      <q-select 
-        v-model="bookingDetails.hour.value" 
-        :options="timeSlots" 
-        option-value="value"
-        option-label="label"
-        emit-value
-        label="Hour"
-        :error-message="vuelidateErrors(v$.bookingDetails.hour.$silentErrors)"
-        :error="v$.bookingDetails.hour.$invalid" 
-      />
     </q-card-section>
     <q-separator />
     <q-card-actions align="right">
-    <q-btn
+      <q-btn
         unelevated 
         class="no-shadow q-mt-md"
         color="negative"
@@ -73,6 +101,15 @@
         :no-caps="true"
         label="Cancel"
         @click="cancelBooking()"
+      />
+      <q-btn
+        unelevated 
+        class="no-shadow q-mt-md"
+        color="warning"
+        size="md"
+        :no-caps="true"
+        label="Back"
+        @click="restartSelection()"
       />
       <q-btn
         unelevated 
@@ -88,57 +125,76 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import moment from 'moment'
+import { useStore } from 'src/stores/mainStore'
+import { computed, ref, onMounted, watch } from 'vue'
 import { api } from '../boot/axios'
-import { Loading, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import useValidations from '../composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'
 import { email, required, numeric, minValue, maxValue } from '@vuelidate/validators'
-import TimeSlot from '../models/User'
+import TableTimeSlot from 'src/models/TableTimeSlot'
+import Booking from 'src/models/Booking'
 
+// props
 const props = defineProps(['table'])
+
+// emits
 const emit = defineEmits(['cancel-booking'])
 
+// data
+const showBookingSection = ref<boolean>(false)
+const searchDate = ref<string>(moment().format('YYYY-MM-DD'))
+const tableTimeSlotsToday = ref<TableTimeSlot[]>([])
 const bookingDetails = {
-  name: ref(null),
-  surname: ref(null),
-  email: ref(null),
-  people: ref(null),
-  date: ref(null),
-  hour: ref(null),
-  table_id: ref(props.table?._id),
+  name: ref<string | null>(null),
+  surname: ref<string | null>(null),
+  email: ref<string | null>(null),
+  people: ref<number | null>(null),
+  date: ref<unknown>(moment().format('YYYY-MM-DD')),
+  hour: ref<number | null>(null),
+  table: ref<string | null>(null),
 }
-const timeSlots: Array<TimeSlot> = [
-  ...Array(23).fill().map((_, index) => {
-    const runningTotal = index + 1
-    return {
-      label: runningTotal < 10 ? `0${runningTotal}:00` : `${runningTotal}:00`,
-      value: runningTotal
-    }
-  })
-]
 
+// computed
 const rules = computed(() => {
   return {
     bookingDetails: {
       name: { required },
       surname: { required },
       email: { required, email },
-      people: { required, numeric,  minValue: minValue(1),  manValue: maxValue(20) },
+      people: { required, numeric,  minValue: minValue(1),  manValue: maxValue(100) },
       date: { required },
       hour: { required, numeric },
     }
   }
 })
 
+// watcher
+watch(searchDate, async (newDate) => { if (newDate) getTableData() })
+
+// setup
+const $store = useStore()
 const $q = useQuasar()
 const v$ = useVuelidate(rules, { bookingDetails })
 const { passValidation, vuelidateErrors } = useValidations()
 
-function cancelBooking(refreshTables = false) {
-  emit('cancel-booking', refreshTables)
+// methods
+function chooseTimeSlot(selectedTimeSlot: TableTimeSlot) {
+  showBookingSection.value = true
+  bookingDetails.date.value = searchDate.value
+  bookingDetails.hour.value = selectedTimeSlot.hour
+  bookingDetails.table.value = selectedTimeSlot.table
 }
-
+function restartSelection() {
+  showBookingSection.value = false
+  bookingDetails.date.value = null
+  bookingDetails.hour.value = null
+  bookingDetails.table.value = null
+}
+function cancelBooking(newBooking: Booking | null = null) {
+  emit('cancel-booking', newBooking)
+}
 function notification(message: string, type: string) {
   $q.notify({
     message: message,
@@ -147,10 +203,9 @@ function notification(message: string, type: string) {
     position: 'top'
   })
 }
-
 async function createBooking() {
   await passValidation(v$.value.bookingDetails).then(async () => {
-    Loading.show({delay:100})
+    $q.loading.show()
     await api.post('bookings', {
       name: bookingDetails.name.value,
       surname: bookingDetails.surname.value,
@@ -158,30 +213,62 @@ async function createBooking() {
       people: bookingDetails.people.value,
       date: bookingDetails.date.value,
       hour: bookingDetails.hour.value,
-      table_id: bookingDetails.table_id.value
+      table: bookingDetails.table.value
     }).then(
       response => {
-        Loading.hide()
+        $q.loading.hide()
         notification(response.data.message, 'success')
-        cancelBooking(true)
+        cancelBooking(response.data.booking)
       },
       error => {
         let errorMessage = null
-        if (error.data.message) {
-          errorMessage = error.data.message
-        } else if (error.response) {
-          errorMessage = error.response.data
+        if (error.response) {
+          errorMessage = error.response.data.message
         } else if (error.request) {
           errorMessage = error.request
         } else {
           errorMessage = error.message
         }
         notification(errorMessage, 'error')
-        Loading.hide()
+        $q.loading.hide()
       }
     )
   })
 }
+async function getTableData() {
+  if ((new Date((new Date()).setHours(0,0,0,0))).getTime() > (new Date(searchDate.value)).getTime()) {
+    notification(`The date of ${searchDate.value} you have selected has already passed. Please choose a current date`, 'error')
+    searchDate.value = moment().format('YYYY-MM-DD')
+    return
+  }
+  $q.loading.show()
+  await api.get('table-time-slots', { params: {
+      tableId: props.table._id,
+      openingHour: $store.$state.openingTimes?.opening_hour,
+      closingHour: $store.$state.openingTimes?.closing_hour,
+      date: searchDate.value
+    }}).then(
+    response => {
+      tableTimeSlotsToday.value = response.data.tableTimeSlotsToday
+      $q.loading.hide()
+    },
+    error => {
+      let errorMessage = null
+      if (error.response) {
+        errorMessage = error.response.data.message
+      } else if (error.request) {
+        errorMessage = error.request
+      } else {
+        errorMessage = error.message
+      }
+      notification(errorMessage, 'error')
+      $q.loading.hide()
+    }
+  )
+}
+
+// life cycle methods
+onMounted(() => getTableData())
 </script>
 
 <style scoped>

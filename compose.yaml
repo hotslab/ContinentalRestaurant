@@ -11,7 +11,9 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
-    - ./mongodb:/data/db
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./mongodb:/data/db
     ports:
     - 27017:27017
     restart: unless-stopped
@@ -26,6 +28,8 @@ services:
       dockerfile: backend.dockerfile
     working_dir: /var/www
     volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
       - ./backend/:/var/www
     ports:
       - 3020:3020
@@ -40,6 +44,8 @@ services:
   #     dockerfile: frontend.dockerfile
   #   working_dir: /var/www
   #   volumes:
+  #     - /etc/timezone:/etc/timezone:ro
+  #     - /etc/localtime:/etc/localtime:ro
   #     - ./frontend/:/var/www
   #   ports:
   #     - 3010:3000

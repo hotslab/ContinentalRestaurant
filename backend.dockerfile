@@ -8,4 +8,8 @@ ADD backend-supervisor.conf /etc/supervisor/conf.d/backend-supervisor.conf
 
 RUN mkdir -p /var/log/supervisor
 
+ADD backend-supervisor.conf /etc/supervisor/conf.d/backend-supervisor.conf
+
+# RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
+
 CMD /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf

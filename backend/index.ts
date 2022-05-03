@@ -8,6 +8,7 @@ import errorHandler from './src/middleware/ErrorHandler'
 import router from './src/routes'
 import mongoose from 'mongoose'
 import cors from '@koa/cors'
+import './src/utils/timezone'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })

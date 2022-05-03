@@ -1,6 +1,6 @@
 export default interface Time{
-  _id: number,
+  _id: string | null,
   opening_hour: number,
   closing_hour: number,
-  days_open: string[] | [] | undefined
+  days_open: string[] | []
 }
