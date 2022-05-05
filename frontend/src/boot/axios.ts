@@ -18,11 +18,11 @@ declare module '@vue/runtime-core' {
 const $store = useStore()
 
 
-const api = axios.create({ baseURL: 'http://localhost:3020/' })
+const api = axios.create({ baseURL: 'http://localhost:3100/' })
 
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {
-    if ($store.$state?.user?.token) config.headers.Authorization = `Bearer ${$store.$state?.user?.token}`
+    if ($store.user?.token) config.headers.Authorization = `Bearer ${$store.user?.token}`
     return config;
   },
   error => {
@@ -45,10 +45,11 @@ api.interceptors.response.use(
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function checkIfUnauthorised(error: any) {
-  const authErrors = ['Authentication Error', 'jwt expired']
+  const authErrors = ['Authentication Error', 'Authentication error', 'jwt expired']
   if (authErrors.includes(error.response.data.error)) {
     $store.setUser(null)
-    return router.push({ name: 'login' })
+    router.push({ name: 'login' })
+    return 
   } 
 }
 

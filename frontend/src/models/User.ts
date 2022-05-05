@@ -1,11 +1,12 @@
 export default interface User{
-  name: string,
-  surname: string,
-  email: string,
-  role: string,
-  password: string,
-  isDeleted: string,
-  created: string,
-  updated: string,
-  token: string
+  _id: string | null,
+  name: string | null,
+  surname: string | null,
+  email: string | null,
+  role: string | null,
+  password: string | null,
+  isDeleted: string | null,
+  created: string | null,
+  updated: string | null,
+  token: string | null
 }

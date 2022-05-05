@@ -37,4 +37,4 @@ app.use(jwt({ secret: `${process.env.JWT_SECRET}` })
 
 app.use(router.routes()).use(router.allowedMethods())
 
-app.listen(3020);
+app.listen(process.env.KOA_SERVER_PORT, () => console.log(`server started on port ${process.env.KOA_SERVER_PORT}`))

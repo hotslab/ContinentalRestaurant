@@ -26,19 +26,19 @@
         :width="200"
         :breakpoint="400"
       >
-        <q-scroll-area v-if="$store.$state.user" style="height: calc(100% - 150px); margin-top: 150px; border-right: 1px solid #ddd">
+        <q-scroll-area v-if="$store.user" style="height: calc(100% - 150px); margin-top: 150px; border-right: 1px solid #ddd">
           <SideBar />  
         </q-scroll-area>
         <SideBar v-else />
-        <q-img v-if="$store.$state.user" class="absolute-top" :src="getRandonPic()" dimmed style="height: 150px">
+        <q-img v-if="$store.user" class="absolute-top" @click="goToProfile()" :src="getRandonPic()" clickable dimmed style="height: 150px">
           <div class="absolute-bottom bg-transparent">
             <q-avatar size="56px" class="q-mb-sm">
               <img src="https://cdn.quasar.dev/img/boy-avatar.png">
             </q-avatar>
             <div class="text-weight-bold"> 
-              {{ $store.$state.user ? `${$store.$state.user.name} ${$store.$state.user.surname}` : 'Profile' }}
+              {{ $store.user ? `${$store.user.name} ${$store.user.surname}` : 'Profile' }}
             </div>
-            <div>{{ $store.$state.user?.email || '@email'}}</div>
+            <div>{{ $store.user?.email || '@email'}}</div>
           </div>
         </q-img>
       </q-drawer>
@@ -54,6 +54,8 @@ import { ref, onMounted } from 'vue'
 import { useStore } from 'src/stores/mainStore'
 import SideBar from 'src/components/SideBar.vue'
 import { api } from 'src/boot/axios'
+import { router } from 'src/router'
+import IO from 'src/composables/socket'
 
 const leftDrawerOpen = ref(false)
 const urlPath = `${location.protocol}//${location.hostname}${`:${location.port}` || ''}`
@@ -65,14 +67,19 @@ const pics = [
 ]
 
 const $store = useStore()
+const { socket } = IO()
 
-function toggleLeftDrawer () {
+function goToProfile(): void {
+  router.push({name: 'user', params: {id: $store.user?._id }})
+}
+function toggleLeftDrawer(): void {
   leftDrawerOpen.value = !leftDrawerOpen.value
 }
-function getRandonPic() {
+function getRandonPic(): string {
   return pics[Math.floor((Math.random()*pics.length))]
 }
-async function getTimes() {
+async function getTimes(): Promise<void> {
+  socket.emit('notification', {test:'name'})
   await api.get('times').then(
     response => $store.setTime(response.data.time),
     error => console.log(error)

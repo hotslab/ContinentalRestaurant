@@ -108,8 +108,16 @@ export default {
   },
   index: async (ctx: Context): Promise<any> => {
     try {
+      const query = ctx.request.query
+      const users = await User.find({
+        email: { $regex: new RegExp(`${query?.email}`, 'ig') },
+        name: { $regex: new RegExp(`${query?.name}`, 'ig') },
+        surname: { $regex: new RegExp(`${query?.surname}`, 'ig') },
+        isDeleted: false,
+        _id: { $ne: query._id }
+      })
       ctx.status = 200
-      ctx.body = { users: await User.find({}) }
+      ctx.body = { users: users }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }
@@ -119,6 +127,33 @@ export default {
     try {
       ctx.status = 200
       ctx.body = { user: await User.findById(ctx.params.id).exec() }
+    } catch (error: any) {
+      ctx.status = error.statusCode || error.status || 500;
+      ctx.body = { message: error.message }
+    }
+  },
+  update: async (ctx: Context): Promise<any> => {
+    try {
+      const user = await User.findById(ctx.params.id)
+      if (user.role == 'manager' && ctx.request.body.role == 'user') {
+        const userWithManagerRoles = await User.find({
+          role: 'manager',
+          isDeleted: false,
+          _id: { $ne: ctx.params.id }
+        })
+        if (!userWithManagerRoles.length) {
+          ctx.status = 400
+          ctx.body = { message: 'There should always be at least one manager in the system' }
+          return
+        } else user.role = ctx.request.body.role
+      }
+      user.name = ctx.request.body.name
+      user.surname = ctx.request.body.surname
+      user.email = ctx.request.body.email
+      if (ctx.request.body?.password) user.password = await argon.hash(ctx.request.body.password )
+      user.save()
+      ctx.status = 200
+      ctx.body = { user: user }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }

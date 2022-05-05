@@ -1,5 +1,79 @@
 <template>
-  <q-card style="width:400px">
+  <q-card v-if="!showEditSection" style="width:400px">
+    <q-card-section>
+      <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
+    </q-card-section>
+    <q-list>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Opening Hour</q-item-label>
+          <q-item-label caption>
+            {{ 
+              $store.openingTimes?.opening_hour < 10 
+                ? `0${$store.openingTimes?.opening_hour}:00` : `${$store.openingTimes?.opening_hour}:00`
+            }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-icon color="secondary" name="schedule" />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Closing Hour</q-item-label>
+          <q-item-label caption>
+            {{ 
+              $store.openingTimes?.closing_hour < 10 
+                ? `0${$store.openingTimes?.closing_hour}:00` : `${$store.openingTimes?.closing_hour}:00`
+            }}
+          </q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-icon color="negative" name="browse_gallery" />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Days Open</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-icon color="primary" name="event" />
+        </q-item-section>
+      </q-item>
+      <q-item v-for="(day, index) in $store.openingTimes?.days_open" :key="index">
+        <q-item-section>
+          <q-item-label class="text-light">{{ `${index + 1}. ${capitalize(day)}` }}</q-item-label>
+        </q-item-section>
+      </q-item>
+      <q-item v-if="$store.openingTimes?.days_open.length <= 0">
+        <q-item-section>
+          <q-item-label>No records found</q-item-label>
+        </q-item-section>
+      </q-item>
+    </q-list>
+    <q-separator />
+    <q-card-actions align="right">
+      <q-btn
+        unelevated 
+        class="no-shadow q-mt-md"
+        color="negative"
+        size="md"
+        :no-caps="true"
+        label="Close"
+        @click="cancelEditTimes()"
+      />
+      <q-btn
+        unelevated 
+        class="no-shadow q-mt-md"
+        color="primary"
+        size="md"
+        :no-caps="true"
+        label="Edit"
+        @click="toggleEdit(true)"
+      />
+    </q-card-actions>
+  </q-card>
+  <q-card v-else style="width:400px">
     <q-card-section>
       <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
     </q-card-section>
@@ -39,6 +113,15 @@
       <q-btn
         unelevated 
         class="no-shadow q-mt-md"
+        color="warning"
+        size="md"
+        :no-caps="true"
+        label="Back"
+        @click="toggleEdit()"
+      />
+      <q-btn
+        unelevated 
+        class="no-shadow q-mt-md"
         color="negative"
         size="md"
         :no-caps="true"
@@ -68,9 +151,12 @@ import { required, numeric, helpers } from '@vuelidate/validators'
 import Time from 'src/models/Time'
 import TimeSlot from 'src/models/TimeSlot'
 import { useStore } from 'src/stores/mainStore'
+import { format } from 'quasar'
+
 
 const emit = defineEmits(['cancel-times'])
 
+const showEditSection = ref<boolean>(false)
 const timeDetails = ref<Time | null>(null)
 const openingHour = ref<number | null | undefined>(null)
 const closingHour = ref<number | null | undefined>(null)
@@ -113,7 +199,11 @@ const $q = useQuasar()
 const $store = useStore()
 const v$ = useVuelidate(rules, { openingHour, closingHour })
 const { passValidation, vuelidateErrors } = useValidations()
+const { capitalize } = format
 
+function toggleEdit(state = false) {
+  showEditSection.value = state
+}
 function cancelEditTimes() {
   emit('cancel-times')
 }
@@ -149,6 +239,8 @@ async function updateTimes() {
       opening_hour: openingHour.value,
       closing_hour: closingHour.value,
       days_open: daysOpen.value,
+      creator_role: $store.user?.role,
+      creator_email: $store.user?.email
     }).then(
       response => {
         $store.setTime(response.data.time)

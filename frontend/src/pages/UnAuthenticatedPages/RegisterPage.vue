@@ -72,7 +72,7 @@
 import {ref, computed} from 'vue'
 import { api } from '../../boot/axios'
 import { router } from '../../router'
-import { Loading, useQuasar } from 'quasar'
+import { useQuasar } from 'quasar'
 import useValidations from '../../composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'
 import { email, required, sameAs } from '@vuelidate/validators'
@@ -116,8 +116,8 @@ function notification(message: string, type: string) {
 
 async function register(): Promise<void> {
   await passValidation(v$.value.registerDetails).then(async () => {
-    Loading.show({delay: 100})
-    await api.post('login', {
+    $q.loading.show()
+    await api.post('register', {
       name: registerDetails.name.value,
       surname: registerDetails.surname.value,
       email: registerDetails.email.value,
@@ -125,12 +125,12 @@ async function register(): Promise<void> {
       confirmPassword: registerDetails.confirmPassword.value
     }).then(
       () => {
-        Loading.hide()
+        $q.loading.hide()
         notification('User registration was successful. Please login to your new account', 'success') 
         router.push({name:'login'})
       },
       error => {
-        Loading.hide()
+        $q.loading.hide()
         let errorMessage = null
         if (error.response) {
           errorMessage = error.response.data.message

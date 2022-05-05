@@ -15,6 +15,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon index.ts",
+    "socket": "nodemon socket.ts",
     "seed": "ts-node ./src/seeder/index.ts"
   },
   "dependencies": {
@@ -30,7 +31,9 @@
     "koa-response-time": "^2.1.0",
     "moment": "^2.29.3",
     "moment-timezone": "^0.5.34",
-    "mongoose": "^6.3.1"
+    "mongoose": "^6.3.1",
+    "redis": "^4.1.0",
+    "socket.io": "^4.5.0"
   },
   "devDependencies": {
     "@types/koa": "^2.13.4",

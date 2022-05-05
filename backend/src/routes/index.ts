@@ -3,16 +3,20 @@ import AuthentificationController from '../controllers/AuthentificationControlle
 import BookingController from '../controllers/BookingController'
 import TimeController from '../controllers/TimeController'
 import TableController from '../controllers/TableController'
+import NotificationController from '../controllers/NotificationController'
 
 const router = new Router()
 
-// user
+// authentification
 router.post('/login', AuthentificationController.login)
 router.post('/register', AuthentificationController.register)
 router.post('/forgot-password', AuthentificationController.forgotPassword)
 router.put('/reset-password', AuthentificationController.resetPassword)
+
+// users
 router.get('/users', AuthentificationController.index)
 router.get('/users/:id', AuthentificationController.show)
+router.put('/users/:id', AuthentificationController.update)
 router.del('/users/:id', AuthentificationController.destroy)
 
 // time
@@ -32,5 +36,9 @@ router.get('/bookings/:id', BookingController.show)
 router.post('/bookings', BookingController.create)
 router.put('/bookings/:id', BookingController.update)
 router.del('/bookings/:id', BookingController.destroy)
+
+// notification
+router.get('/notifications', NotificationController.index)
+router.put('/notifications/:id', NotificationController.update)
 
 export default router

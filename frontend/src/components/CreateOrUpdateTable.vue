@@ -21,7 +21,7 @@
     </q-card-section>
     <q-separator />
     <q-card-actions align="right">
-    <q-btn
+      <q-btn
         unelevated 
         class="no-shadow q-mt-md"
         color="negative"

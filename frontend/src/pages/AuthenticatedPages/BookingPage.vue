@@ -3,9 +3,12 @@
     <q-card v-if="!showEditSection" flat bordered class="no-shadow" style="width:300px;">
       <q-img :src="getRandonPic()" />
       <q-card-section>
-        <div class="text-h6 text-light text-primary">{{booking?.table?.name || '-'}}</div>
+        <div class="text-h6 text-light text-primary">
+          {{booking?.table?.name || '-'}}
+        </div>
         <div class="text-subtitle">{{ booking?.table.description || '-'}}</div>
       </q-card-section>
+      <q-separator />
       <q-card-section class="q-pt-md">
         <div class="text-subtitle text-light">
           Name: {{ `${booking?.name || '-'} ${booking?.surname || '-' }` }}
@@ -289,6 +292,7 @@ const rules = computed(() => {
     }
   }
 })
+const isManager = computed(() => $store.user !== null && $store.user.role == 'manager' )
 
 // watcher
 watch(searchDate, async (newDate) => { if (newDate) getTableData() })
@@ -353,7 +357,11 @@ async function updateBooking() {
       people: bookingDetails.value.people,
       date: searchDate?.value || moment(booking.value?.date).format('YYYY-MM-DD'),
       hour: selectedTimeSlot.value?.hour || booking.value?.hour,
-      table: selectedTable.value?._id || booking.value?.table?._id
+      table: selectedTable.value?._id || booking.value?.table?._id,
+      creator_role: isManager.value ? 'manager' : 'user',
+      creator_email: isManager.value
+        ? $store.user?.email 
+        : ($store.user ? $store.user?.email : bookingDetails.value.email) 
     }).then(
       response => {
         notification(response.data.message, 'success')
@@ -437,8 +445,8 @@ async function getTableData() {
     $q.loading.show()
     await api.get('table-time-slots', { params: {
         tableId: selectedTable.value?._id || booking?.value?.table?._id,
-        openingHour: $store.$state.openingTimes?.opening_hour,
-        closingHour: $store.$state.openingTimes?.closing_hour,
+        openingHour: $store.openingTimes?.opening_hour,
+        closingHour: $store.openingTimes?.closing_hour,
         date: searchDate.value || booking?.value?.date
       }}).then(
       response => {

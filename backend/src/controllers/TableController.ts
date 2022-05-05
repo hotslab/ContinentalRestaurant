@@ -1,7 +1,6 @@
 import { Context } from 'koa'
 import Table from '../models/Table'
 import Booking from '../models/Booking'
-import { BookingModel } from '../models/Booking'
 import moment from 'moment'
 
 interface TableTimeSlot {
@@ -75,6 +74,17 @@ export default {
   },
   destroy: async (ctx: Context): Promise<any> => {
     try {
+      const currentBookings = await Booking.find({
+        table: ctx.params.id, 
+        date: { $gte: moment().format('YYYY-MM-DD') },
+        hour: { $gte: moment().format('H') },
+        status: { $in: ['queued', 'booked'] }
+      })
+      if (currentBookings.length) {
+        ctx.status = 400
+        ctx.body = { message: 'There are current bookings associated with this table' }
+        return
+      }
       await Table.findByIdAndUpdate(ctx.params.id, { isDeleted: true })
       ctx.status = 200
       ctx.body = { message: 'Table deleted successfuly' }

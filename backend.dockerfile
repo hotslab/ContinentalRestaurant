@@ -1,6 +1,6 @@
 FROM node:18-bullseye-slim
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing supervisor
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing supervisor redis-server
 
 WORKDIR /var/www
 

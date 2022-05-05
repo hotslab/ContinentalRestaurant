@@ -5,7 +5,7 @@
         <q-card-section class="full-width flex justify-between items-center">
           <h5 class="text-primary text-weight-light no-margin">Tables {{tables.length}}</h5>
           <q-btn
-            v-if="$store.$state.user && $store.$state.user.role == 'manager' "
+            v-if="$store.user && $store.user.role == 'manager' "
             unelevated
             class="no-shadow q-mt-md"
             color="primary"

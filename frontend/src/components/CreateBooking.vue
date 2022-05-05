@@ -135,6 +135,7 @@ import { useVuelidate } from '@vuelidate/core'
 import { email, required, numeric, minValue, maxValue } from '@vuelidate/validators'
 import TableTimeSlot from 'src/models/TableTimeSlot'
 import Booking from 'src/models/Booking'
+import { userInfo } from 'os'
 
 // props
 const props = defineProps(['table'])
@@ -169,6 +170,7 @@ const rules = computed(() => {
     }
   }
 })
+const isManager = computed(() => $store.user !== null && $store.user.role == 'manager' )
 
 // watcher
 watch(searchDate, async (newDate) => { if (newDate) getTableData() })
@@ -213,7 +215,11 @@ async function createBooking() {
       people: bookingDetails.people.value,
       date: bookingDetails.date.value,
       hour: bookingDetails.hour.value,
-      table: bookingDetails.table.value
+      table: bookingDetails.table.value,
+      creator_role: isManager.value ? 'manager' : 'user',
+      creator_email: isManager.value
+        ? $store.user?.email 
+        : ($store.user ? $store.user?.email : bookingDetails.email.value) 
     }).then(
       response => {
         $q.loading.hide()
@@ -244,8 +250,8 @@ async function getTableData() {
   $q.loading.show()
   await api.get('table-time-slots', { params: {
       tableId: props.table._id,
-      openingHour: $store.$state.openingTimes?.opening_hour,
-      closingHour: $store.$state.openingTimes?.closing_hour,
+      openingHour: $store.openingTimes?.opening_hour,
+      closingHour: $store.openingTimes?.closing_hour,
       date: searchDate.value
     }}).then(
     response => {

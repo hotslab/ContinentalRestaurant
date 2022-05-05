@@ -1,9 +1,12 @@
 
+import { table } from 'console'
 import { Context } from 'koa'
 import moment from 'moment'
 import Booking from '../models/Booking'
+import Notification from '../models/Notification'
 import Table from '../models/Table'
 import Time from '../models/Time'
+import redis from '../utils/redis'
 
 async function areTablesAvailableThisHour(ctx: Context): Promise<boolean> {
   const tablesOccupied = await Booking.find({ status: 'booked', hour: ctx.request.body.hour, date: ctx.request.body.date })
@@ -77,10 +80,23 @@ export default {
         table: data.table
       })
       booking.save()
+      const bookingPopulated = await Booking.findById(booking._id).populate('table')
+      const notification = await new Notification({
+        type: 'booking',
+        description: 'creation',
+        created_by: data.creator_email,
+        creator_role: data.creator_role,
+        receiver_email: data.creator_role == 'manager' ? data.email : null,
+        receiver_role: data.creator_role == 'manager' ? 'user' : 'manager', 
+        received: false,
+        content: JSON.stringify(bookingPopulated)
+      })
+      notification.save()
+      await redis.publish('notification', JSON.stringify(notification))
 
       ctx.status = 200
       ctx.body = { 
-        booking: booking, 
+        booking: bookingPopulated, 
         message: areTablesAvailable 
           ? 'Your booking has been created successfuly' 
           : `All tables are currently booked for this hour of ${data.hour}:00. Your 
@@ -120,7 +136,7 @@ export default {
             return        
         }
       }
-      const booking = await Booking.findByIdAndUpdate(ctx.params.id, { 
+      await Booking.findByIdAndUpdate(ctx.params.id, { 
         $set: {
           name: data.name,
           surname: data.surname,
@@ -132,8 +148,22 @@ export default {
           table: data.table
         }
       })
+      const bookingPopulated = await Booking.findById(ctx.params.id).populate('table')
+      const notification = await new Notification({
+        type: 'booking',
+        description: 'updating',
+        created_by: data.creator_email,
+        creator_role: data.creator_role,
+        receiver_email: data.creator_role == 'manager' ? data.email : 'system',
+        receiver_role: data.creator_role == 'manager' ? 'user' : 'manager', 
+        received: false,
+        content: JSON.stringify(bookingPopulated)
+      })
+      notification.save()
+      await redis.publish('notification', JSON.stringify(notification))
+
       ctx.status = 200
-      ctx.body = { booking: booking, message: 'Booking has been updated succesfully' }
+      ctx.body = { booking: bookingPopulated, message: 'Booking has been updated succesfully' }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }
@@ -141,8 +171,23 @@ export default {
   },
   destroy: async (ctx: Context): Promise<void> => {
     try {
+      const query = ctx.request.query
       const booking = await Booking.findByIdAndUpdate(ctx.params.id, { $set: { status: 'canceled' }})
       await booking.save()
+      const bookingPopulated = await Booking.findById(ctx.params.id).populate('table')
+      const notification = await new Notification({
+        type: 'booking',
+        description: 'updating',
+        created_by: query.creator_email,
+        creator_role: query.creator_role,
+        receiver_email: query.creator_role,
+        receiver_role: query.creator_role,
+        received: false,
+        content: JSON.stringify(bookingPopulated)
+      })
+      notification.save()
+      await redis.publish('notification', JSON.stringify(notification))
+
       ctx.status = 200
       ctx.body = { message: 'Booking has been canceled successfuly' }
     } catch (error: any) {
