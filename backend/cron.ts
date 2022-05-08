@@ -1,8 +1,9 @@
 import 'dotenv/config'
+import './src/utils/v1/timezone'
 import  cron from 'node-cron'
 import mongoose from 'mongoose'
-import BookingReAssignment from './src/jobs/BookingReAssignment'
-import CloseExpiredBookings from './src/jobs/CloseExpiredBookings'
+import BookingReAssignment from './src/jobs/v1/BookingReAssignment'
+import CloseExpiredBookings from './src/jobs/v1/CloseExpiredBookings'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })

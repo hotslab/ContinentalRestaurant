@@ -1,8 +1,8 @@
 <template>
   <q-card v-if="!showEditSection" style="width:400px">
-    <q-card-section>
-      <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
-    </q-card-section>
+    <q-toolbar class="bg-primary text-white no-shadow">
+      <q-toolbar-title>Opening Times</q-toolbar-title>
+    </q-toolbar>
     <q-list>
       <q-item>
         <q-item-section>
@@ -32,14 +32,11 @@
           <q-icon color="negative" name="browse_gallery" />
         </q-item-section>
       </q-item>
-      <q-item>
-        <q-item-section>
-          <q-item-label>Days Open</q-item-label>
-        </q-item-section>
-        <q-item-section avatar>
-          <q-icon color="primary" name="event" />
-        </q-item-section>
-      </q-item>
+    </q-list>
+    <q-toolbar class="bg-primary text-white no-shadow">
+      <q-toolbar-title>Days Open</q-toolbar-title>
+    </q-toolbar>
+    <q-list>
       <q-item v-for="(day, index) in $store.openingTimes?.days_open" :key="index">
         <q-item-section>
           <q-item-label class="text-light">{{ `${index + 1}. ${capitalize(day)}` }}</q-item-label>
@@ -63,6 +60,7 @@
         @click="cancelEditTimes()"
       />
       <q-btn
+        v-if="$store.user?.role == 'manager' "
         unelevated 
         class="no-shadow q-mt-md"
         color="primary"
@@ -75,7 +73,7 @@
   </q-card>
   <q-card v-else style="width:400px">
     <q-card-section>
-      <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
+      <h6 class="text-primary text-weight-light no-margin">Edit Opening Times</h6>
     </q-card-section>
     <q-card-section class="flex column justify-between q-pt-none">
 
@@ -149,7 +147,7 @@ import useValidations from 'src/composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Time from 'src/models/Time'
-import TimeSlot from 'src/models/TimeSlot'
+import { TimeSlot, timeOptions } from 'src/models/TimeSlot'
 import { useStore } from 'src/stores/mainStore'
 
 
@@ -169,15 +167,7 @@ const dayOptions: Array<{label: string, value: string}> = [
   {label:'Saturday', value: 'saturday'},
   {label:'Sunday', value: 'sunday'}
 ]
-const timeSlots: Array<TimeSlot> = [
-  ...Array(24).fill(null).map((_, index) => {
-    const runningTotal = index + 1
-    return {
-      label: runningTotal == 24 ? '00:00' : (runningTotal < 10 ? `0${runningTotal}:00` : `${runningTotal}:00`),
-      value: runningTotal
-    }
-  })
-]
+const timeSlots: Array<TimeSlot> = timeOptions
 const validateOpeningHour = (param: number) => helpers.withParams(
   { param },
   (value: number) => value < param
@@ -206,7 +196,6 @@ function toggleEdit(state = false) {
 function cancelEditTimes() {
   emit('cancel-times')
 }
-
 function notification(message: string, type: string) {
   $q.notify({
     message: message,
@@ -215,7 +204,6 @@ function notification(message: string, type: string) {
     position: 'top'
   })
 }
-
 async function getTimes() {
   $q.loading.show()
     await api.get('times').then(
@@ -230,7 +218,6 @@ async function getTimes() {
       error => {$q.loading.hide(), console.log(error)}
     )
 }
-
 async function updateTimes() {
   await passValidation(v$.value).then(async () => {
     $q.loading.show()

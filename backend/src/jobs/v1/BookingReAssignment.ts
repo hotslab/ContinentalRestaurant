@@ -1,12 +1,12 @@
-import { TimeInterface } from './../models/Time'
-import { TableInterface } from '../models/Table'
-import { BookingInterface } from '../models/Booking'
-import Time from '../models/Time'
-import Booking from '../models/Booking'
-import Notification from '../models/Notification'
+import { TimeInterface } from '../../models/v1/Time'
+import { TableInterface } from '../../models/v1/Table'
+import { BookingInterface } from '../../models/v1/Booking'
+import Time from '../../models/v1/Time'
+import Booking from '../../models/v1/Booking'
+import Notification from '../../models/v1/Notification'
 import moment from 'moment'
-import redis from '../utils/redis'
-import Table from '../models/Table'
+import redis from '../../utils/v1/redis'
+import Table from '../../models/v1/Table'
 
 export default async function (): Promise<void> {
   try {
@@ -43,7 +43,7 @@ async function assignChosenTableInChosenHourIfAvaialbe(index: number, booking: B
     const savedBooking: BookingInterface =  await Booking.findByIdAndUpdate(booking._id, { $set: { status: 'booked'}}).exec()
     const bookingPopulated: BookingInterface = await Booking.findById(savedBooking._id).populate('table').exec()
     const notification = await new Notification({
-      type: 'booking',
+      type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} has been set from waiting list`,
       description: `
         The table ${bookingPopulated.table.name} has been booked on ${bookingPopulated.date} at ${hourFormat(bookingPopulated.hour)}
       `,
@@ -78,7 +78,7 @@ async function assignNewTableInChosenHourIfAvailable(index: number, booking: Boo
     }).exec()
     const bookingPopulated: BookingInterface = await Booking.findById(savedBooking._id).populate('table').exec()
     const notification = await new Notification({
-      type: 'booking',
+      type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} has been set from waiting list`,
       description: `
         The table ${bookingPopulated.table.name} has been booked on ${bookingPopulated.date} at ${hourFormat(bookingPopulated.hour)}
       `,
@@ -109,7 +109,7 @@ async function assignChosenTableInNextHourIfAvailable(index: number, booking: Bo
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(booking._id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} from waiting list has been cancelled`,
         description: `The table ${bookingPopulated.table.name} has been canceled as restaurant closing times have been reached`,
         created_by: 'system',
         creator_role: 'system',
@@ -138,7 +138,7 @@ async function assignChosenTableInNextHourIfAvailable(index: number, booking: Bo
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(savedBooking._id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} has been set from waiting list`,
         description: `
           The table ${bookingPopulated.table.name} has been booked on ${bookingPopulated.date} at ${hourFormat(bookingPopulated.hour)}
         `,
@@ -170,7 +170,7 @@ async function assignNewTableInNextHourIfAvailable(index: number, booking: Booki
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(booking._id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} from waiting list has been cancelled`,
         description: `The table ${bookingPopulated.table.name} has been canceled as restaurant closing times have been reached`,
         created_by: 'system',
         creator_role: 'system',
@@ -203,7 +203,7 @@ async function assignNewTableInNextHourIfAvailable(index: number, booking: Booki
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(savedBooking._id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Booking for table ${bookingPopulated.table.name} by ${bookingPopulated.email} has been set from waiting list`,
         description: `
           The table ${bookingPopulated.table.name} has been booked on ${bookingPopulated.date} at ${hourFormat(bookingPopulated.hour)}
         `,

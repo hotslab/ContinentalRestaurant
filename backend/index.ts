@@ -4,11 +4,11 @@ import logger from 'koa-logger'
 import koaBody from 'koa-body'
 import responseTime from 'koa-response-time'
 import jwt from 'koa-jwt'
-import errorHandler from './src/middleware/ErrorHandler'
-import router from './src/routes'
 import mongoose from 'mongoose'
 import cors from '@koa/cors'
-import './src/utils/timezone'
+import errorHandler from './src/middleware/v1/ErrorHandler'
+import router from './src/routes/v1'
+import './src/utils/v1/timezone'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })

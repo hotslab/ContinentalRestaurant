@@ -1,8 +1,7 @@
 import { Context } from 'koa'
-import Time from '../models/Time'
-import redis from '../utils/redis'
-import dbTimeFormat from '../utils/dbTimeFormat'
-import Notification from '../models/Notification'
+import Time from '../../models/v1/Time'
+import redis from '../../utils/v1/redis'
+import Notification from '../../models/v1/Notification'
 
 function formatedHour(hour: number): string {
   return `${hour < 10 ? `0${hour}:00` : `${hour}:00` } ${hour < 13 ? 'am' : 'pm' }`
@@ -36,27 +35,20 @@ export default {
         }
       }, { upsert: true, new: true }).exec()
       let notification = await new Notification({
-        type: 'times',
+        type: 'Restaurant opening times have been changed',
         description: `
           Restaurant opening times have been updated from ${formatedHour(data.opening_hour)} to ${formatedHour(data.closing_hour)}, 
           whith it open on ${displayDaysOpen(data.days_open)} every week.
         `,
         created_by: data.creator_email,
         creator_role: data.creator_role,
-        receiver_email: data.creator_role,
-        receiver_role: data.creator_role,
+        receiver_email: 'all',
+        receiver_role: 'user',
         received: false,
         content: time,
-        offset: new Date().getTimezoneOffset()
       })
       await notification.save()
-
-      console.log('FIRST', notification)
-      notification = dbTimeFormat(notification)
-      console.log('SECOND', notification)
-
       await redis.publish('notification', JSON.stringify(notification))
-
       ctx.status = 200
       ctx.body = { time: time }
     } catch (error: any) {

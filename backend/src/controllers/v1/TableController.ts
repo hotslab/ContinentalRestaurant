@@ -1,6 +1,6 @@
 import { Context } from 'koa'
-import Table from '../models/Table'
-import Booking from '../models/Booking'
+import Table from '../../models/v1/Table'
+import Booking from '../../models/v1/Booking'
 import moment from 'moment'
 
 interface TableTimeSlot {

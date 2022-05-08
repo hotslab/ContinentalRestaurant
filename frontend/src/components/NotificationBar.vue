@@ -9,9 +9,12 @@
         @click="toggleShowNotification(notification, true)"
       >
         <q-item-section>
-          <q-item-label>{{ notification.type }}</q-item-label>
+          <q-item-label>{{ `${index + 1}. ${notification.type}` }}</q-item-label>
           <q-item-label caption>
-            {{ notification.description }}
+            {{  notification.description }}
+          </q-item-label>
+          <q-item-label class="text-bold" caption>
+            {{ moment(notification.created).format('YYYY-MM-DD HH:mm:ss') }}
           </q-item-label>
         </q-item-section>
         <q-item-section avatar>
@@ -38,16 +41,15 @@
   </q-card>
   <q-card v-else class="full-width">
     <q-card-section>
-      <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
+      <h6 class="text-primary text-weight-light no-margin">Notification Details</h6>
     </q-card-section>
     <q-list>
       <q-item>
         <q-item-section>
-          <q-item-label>Notification</q-item-label>
-          <q-item-label caption>{{ selectedNotification?.type || '-' }}</q-item-label>
+          <q-item-label>{{ selectedNotification?.type }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
-          <q-icon color="secondary" name="schedule" />
+          <q-icon color="secondary" name="notifications_active" />
         </q-item-section>
       </q-item>
       <q-item>
@@ -56,7 +58,16 @@
           <q-item-label caption>{{ selectedNotification?.description || '-' }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
-          <q-icon color="negative" name="browse_gallery" />
+          <q-icon color="negative" name="info" />
+        </q-item-section>
+      </q-item>
+      <q-item>
+        <q-item-section>
+          <q-item-label>Time</q-item-label>
+          <q-item-label caption>{{ moment(selectedNotification?.created).format('YYYY-MM-DD HH:mm:ss') }}</q-item-label>
+        </q-item-section>
+        <q-item-section avatar>
+          <q-icon color="primary" name="schedule" />
         </q-item-section>
       </q-item>
     </q-list>
@@ -75,9 +86,10 @@
 </template>
 
 <script setup lang="ts">
+import moment from 'moment'
 import { ref } from 'vue'
 import { api } from 'src/boot/axios'
-import { useQuasar, format } from 'quasar'
+import { useQuasar } from 'quasar'
 import Notification from 'src/models/Notification'
 
 // props
@@ -93,7 +105,6 @@ const showNotificationSection = ref<boolean>(false)
 
 // setup
 const $q = useQuasar()
-const { capitalize } = format
 
 // methods
 async function toggleShowNotification(notification: Notification | null = null, displayNotification = false) {

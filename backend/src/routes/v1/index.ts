@@ -1,9 +1,9 @@
 import Router from '@koa/router'
-import AuthentificationController from '../controllers/AuthentificationController'
-import BookingController from '../controllers/BookingController'
-import TimeController from '../controllers/TimeController'
-import TableController from '../controllers/TableController'
-import NotificationController from '../controllers/NotificationController'
+import AuthentificationController from '../../controllers/v1/AuthentificationController'
+import BookingController from '../../controllers/v1/BookingController'
+import TimeController from '../../controllers/v1/TimeController'
+import TableController from '../../controllers/v1/TableController'
+import NotificationController from '../../controllers/v1/NotificationController'
 
 const router = new Router()
 

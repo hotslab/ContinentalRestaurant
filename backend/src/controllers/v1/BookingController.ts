@@ -1,13 +1,13 @@
-import { TimeInterface } from './../models/Time';
-import { TableInterface } from './../models/Table';
-import { BookingInterface } from './../models/Booking'
+import { TimeInterface } from '../../models/v1/Time';
+import { TableInterface } from '../../models/v1/Table';
+import { BookingInterface } from '../../models/v1/Booking'
 import { Context } from 'koa'
 import moment from 'moment'
-import Booking from '../models/Booking'
-import Notification from '../models/Notification'
-import Table from '../models/Table'
-import Time from '../models/Time'
-import redis from '../utils/redis'
+import Booking from '../../models/v1/Booking'
+import Notification from '../../models/v1/Notification'
+import Table from '../../models/v1/Table'
+import Time from '../../models/v1/Time'
+import redis from '../../utils/v1/redis'
 
 async function areTablesAvailableThisHour(ctx: Context): Promise<boolean> {
   const tablesOccupied: BookingInterface[] = await Booking.find({ 
@@ -92,15 +92,15 @@ export default {
       await booking.save()
       const bookingPopulated: BookingInterface = await Booking.findById(booking._id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `New Booking by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
         description: `
           New booking created for table ${bookingPopulated.table.name} on ${bookingPopulated.date} at
           ${formatedHour(bookingPopulated.hour)} with ${bookingPopulated.people} people attending.
         `,
         created_by: data.creator_email,
         creator_role: data.creator_role,
-        receiver_email: data.creator_role == 'manager' ? data.email : null,
-        receiver_role: data.creator_role == 'manager' ? 'user' : 'manager', 
+        receiver_email: data.email,
+        receiver_role: 'user', 
         received: false,
         content: bookingPopulated
       })
@@ -167,15 +167,15 @@ export default {
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(ctx.params.id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Updated Booking by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
         description: `
           Booking details updated for table ${bookingPopulated.table.name} on ${bookingPopulated.date} at
           ${formatedHour(bookingPopulated.hour)} with ${bookingPopulated.people} people attending.
         `,
         created_by: data.creator_email,
         creator_role: data.creator_role,
-        receiver_email: data.creator_role == 'manager' ? data.email : 'system',
-        receiver_role: data.creator_role == 'manager' ? 'user' : 'manager', 
+        receiver_email: data.email,
+        receiver_role: 'user', 
         received: false,
         content: JSON.stringify(bookingPopulated)
       })
@@ -195,12 +195,12 @@ export default {
       await booking.save()
       const bookingPopulated: BookingInterface = await Booking.findById(ctx.params.id).populate('table').exec()
       const notification = await new Notification({
-        type: 'booking',
+        type: `Booking cancelled by ${query.creator_role == 'user' ? query.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
         description: 'updating',
         created_by: query.creator_email,
         creator_role: query.creator_role,
-        receiver_email: query.creator_role,
-        receiver_role: query.creator_role,
+        receiver_email: bookingPopulated.email,
+        receiver_role: 'user',
         received: false,
         content: JSON.stringify(bookingPopulated)
       })

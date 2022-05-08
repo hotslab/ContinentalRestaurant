@@ -24,7 +24,7 @@
       Bookings
     </q-item-section>
   </q-item>
-  <q-item v-if="$store.user && $store.user.role == 'manager' " @click="showTimeModal = true" clickable>
+  <q-item v-if="$store.user" @click="showTimeModal = true" clickable>
     <q-item-section avatar>
       <q-btn dense unelevated color="secondary" round icon="schedule" />
     </q-item-section>
@@ -125,7 +125,7 @@ function startSocket() {
     console.log('socket message received', data)
     if ($store.user && isManager.value) 
       notifications.value.push(data)
-    if ($store.user && !isManager.value && data.receiver_email == $store.user.email) 
+    if ($store.user && !isManager.value && (data.receiver_email == $store.user.email || data.receiver_email == 'all')) 
       notifications.value.push(data)
   })
 }

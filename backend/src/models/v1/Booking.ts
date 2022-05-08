@@ -1,5 +1,5 @@
 import mongoose, { Schema } from 'mongoose'
-import { TableInterface } from './Table'
+import { TableInterface } from '../v1/Table'
 
 export interface BookingInterface {
   _id: string,

@@ -8,6 +8,6 @@ export default interface Notification {
   receiver_role: string,
   received: string,
   content: string,
-  created:  Date
+  created:  Date,
   updated: Date
 }

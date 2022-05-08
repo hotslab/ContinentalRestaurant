@@ -2,7 +2,7 @@
 import { Context } from 'koa'
 import jsonWebtoken from 'jsonwebtoken'
 import argon from 'argon2'
-import User from '../models/User'
+import User from '../../models/v1/User'
 
 export default {
   login: async (ctx: Context) => {

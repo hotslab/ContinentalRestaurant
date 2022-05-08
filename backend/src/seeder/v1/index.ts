@@ -2,10 +2,10 @@
 import argon from 'argon2'
 import mongoose from 'mongoose'
 import 'dotenv/config'
-import User from '../models/User'
-import Time from '../models/Time'
-import Table from '../models/Table'
-import '../utils/timezone'
+import User from '../../models/v1/User'
+import Time from '../../models/v1/Time'
+import Table from '../../models/v1/Table'
+import '../../utils/timezone'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })

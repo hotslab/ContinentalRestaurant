@@ -135,7 +135,6 @@ import { useVuelidate } from '@vuelidate/core'
 import { email, required, numeric, minValue, maxValue } from '@vuelidate/validators'
 import TableTimeSlot from 'src/models/TableTimeSlot'
 import Booking from 'src/models/Booking'
-import { userInfo } from 'os'
 
 // props
 const props = defineProps(['table'])

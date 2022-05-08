@@ -159,6 +159,7 @@ async function resetPassword(): Promise<void> {
         } else {
           errorMessage = error.message
         }
+        notification(errorMessage, 'error')
       }
     )
   })

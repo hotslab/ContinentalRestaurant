@@ -1,15 +1,15 @@
 
 import { Context } from 'koa'
 import moment from 'moment'
-import Notification from '../models/Notification'
+import Notification from '../../models/v1/Notification'
 
 export default {
   index: async (ctx: Context): Promise<any> => {
     try {
       const query = ctx.request.query
       let emailFilter: Object | string | null | undefined = query.role == 'manager'
-        ? { $in: [ query?.email, 'system' ] }
-        : query.email
+        ? { $regex: new RegExp('', 'ig') }
+        : { $in: [ query?.email, 'all' ] }
       const notifications = await Notification.find({
         receiver_email: emailFilter,
         received: false 

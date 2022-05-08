@@ -1,5 +1,5 @@
 
-import Booking from '../models/Booking'
+import Booking from '../../models/v1/Booking'
 import moment from 'moment'
 
 export default async function (): Promise<void> {
