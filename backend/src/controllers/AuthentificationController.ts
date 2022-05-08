@@ -74,7 +74,7 @@ export default {
         ctx.body = { message: 'Email is required' }
         return
       }
-      const user = await  User.findOne({ email: ctx.request.body.email })
+      const user = await  User.findOne({ email: ctx.request.body.email }).exec()
       if (user) {
         ctx.status = 200
         ctx.body = { user: user }
@@ -98,7 +98,7 @@ export default {
       await User.updateOne(
         { email: ctx.request.body.email }, 
         { $set: {password: await argon.hash(ctx.request.body.password ) } }
-      )
+      ).exec()
       ctx.status = 200
       ctx.body = { message: `Pasword has been reset for ${ctx.request.body.email} successfuly` }
     } catch (error: any) {
@@ -115,7 +115,7 @@ export default {
         surname: { $regex: new RegExp(`${query?.surname}`, 'ig') },
         isDeleted: false,
         _id: { $ne: query._id }
-      })
+      }).exec()
       ctx.status = 200
       ctx.body = { users: users }
     } catch (error: any) {
@@ -134,13 +134,13 @@ export default {
   },
   update: async (ctx: Context): Promise<any> => {
     try {
-      const user = await User.findById(ctx.params.id)
+      const user = await User.findById(ctx.params.id).exec()
       if (user.role == 'manager' && ctx.request.body.role == 'user') {
         const userWithManagerRoles = await User.find({
           role: 'manager',
           isDeleted: false,
           _id: { $ne: ctx.params.id }
-        })
+        }).exec()
         if (!userWithManagerRoles.length) {
           ctx.status = 400
           ctx.body = { message: 'There should always be at least one manager in the system' }
@@ -161,7 +161,7 @@ export default {
   },
   destroy: async (ctx: Context): Promise<any> => {
     try {
-      await User.findByIdAndUpdate(ctx.params.id, { isDeleted: true })
+      await User.findByIdAndUpdate(ctx.params.id, { $set:{ isDeleted: true } }).exec()
       ctx.status = 200
       ctx.body = { message: 'User has been deleted successfuly' }
     } catch (error: any) {

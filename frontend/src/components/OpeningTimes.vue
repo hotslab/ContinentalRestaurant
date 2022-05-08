@@ -144,14 +144,13 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
-import { useQuasar } from 'quasar'
+import { useQuasar, format } from 'quasar'
 import useValidations from 'src/composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
 import Time from 'src/models/Time'
 import TimeSlot from 'src/models/TimeSlot'
 import { useStore } from 'src/stores/mainStore'
-import { format } from 'quasar'
 
 
 const emit = defineEmits(['cancel-times'])

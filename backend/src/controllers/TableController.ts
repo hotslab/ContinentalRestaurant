@@ -18,7 +18,7 @@ async function structedTableTimeSlotData(queryParams: any, hour: number): Promis
     status: { $in: [ "queued", "booked" ] },
     date: queryParams.date,
     hour: hour
-  })
+  }).exec()
   const startHour = hour == 24 ? '00:00' : (hour < 10 ? `0${hour}:00` : `${hour}:00`)
   const endHour = (hour + 1) == 24 ? '00:00' : ( (hour + 1) == 25 ? '01:00' : ((hour + 1) < 10 ? `0${(hour + 1)}:00` : `${(hour + 1)}:00`))
   return { 
@@ -35,7 +35,7 @@ export default {
   index: async (ctx: Context) => {
     try {
       ctx.status = 200
-      ctx.body = { tables: await Table.find({isDeleted: false}).sort({created: -1}) }
+      ctx.body = { tables: await Table.find({isDeleted: false}).sort({created: -1}).exec() }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }
@@ -62,10 +62,10 @@ export default {
       ctx.status = 200
       ctx.body = { 
         message: 'Table created succssfully',
-        table: await Table.findByIdAndUpdate(ctx.params.id, { 
+        table: await Table.findByIdAndUpdate(ctx.params.id, { $set: {
           name: ctx.request.body.name,
           description: ctx.request.body.description 
-        })
+        }}).exec()
       }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
@@ -85,7 +85,7 @@ export default {
         ctx.body = { message: 'There are current bookings associated with this table' }
         return
       }
-      await Table.findByIdAndUpdate(ctx.params.id, { isDeleted: true })
+      await Table.findByIdAndUpdate(ctx.params.id, { $set: { isDeleted: true } }).exec()
       ctx.status = 200
       ctx.body = { message: 'Table deleted successfuly' }
     } catch (error: any) {

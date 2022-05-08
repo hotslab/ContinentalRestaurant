@@ -13,7 +13,7 @@ export default {
       const notifications = await Notification.find({
         receiver_email: emailFilter,
         received: false 
-      }).sort({date: -1, created: -1})
+      }).sort({date: -1, created: -1}).exec()
       ctx.status = 200
       ctx.body = { notifications: notifications }
     } catch (error: any) {
@@ -23,7 +23,7 @@ export default {
   },
   update: async (ctx: Context): Promise<any> => {
     try {
-      const notification = await Notification.findByIdAndUpdate(ctx.params.id, { $set: { received: true } })
+      const notification = await Notification.findByIdAndUpdate(ctx.params.id, { $set: { received: true } }).exec()
       ctx.status = 200
       ctx.body = { notification: notification }
     } catch (error: any) {

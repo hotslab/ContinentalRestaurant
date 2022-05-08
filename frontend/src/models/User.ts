@@ -7,6 +7,5 @@ export default interface User{
   password: string | null,
   isDeleted: string | null,
   created: string | null,
-  updated: string | null,
-  token: string | null
+  updated: string | null
 }

@@ -14,6 +14,9 @@
             {{ notification.description }}
           </q-item-label>
         </q-item-section>
+        <q-item-section avatar>
+          <q-icon color="secondary" name="visibility" />
+        </q-item-section>
       </q-item>
       <q-item v-if="notifications.length <= 0">
         <q-item-section>
@@ -29,11 +32,11 @@
         size="md"
         :no-caps="true"
         label="Close"
-        @click="closeNotification()"
+        @click="emit('close-notification')"
       />
     </q-card-actions>
   </q-card>
-  <q-card v-else>
+  <q-card v-else class="full-width">
     <q-card-section>
       <h6 class="text-primary text-weight-light no-margin">Opening Times</h6>
     </q-card-section>
@@ -41,7 +44,7 @@
       <q-item>
         <q-item-section>
           <q-item-label>Notification</q-item-label>
-          <q-item-label caption>{{ selectedNotification.type }}</q-item-label>
+          <q-item-label caption>{{ selectedNotification?.type || '-' }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-icon color="secondary" name="schedule" />
@@ -50,7 +53,7 @@
       <q-item>
         <q-item-section>
           <q-item-label>Description</q-item-label>
-          <q-item-label caption>{{ selectedNotification.dsscription }}</q-item-label>
+          <q-item-label caption>{{ selectedNotification?.description || '-' }}</q-item-label>
         </q-item-section>
         <q-item-section avatar>
           <q-icon color="negative" name="browse_gallery" />
@@ -65,44 +68,36 @@
         size="md"
         :no-caps="true"
         label="Close"
-        @click="toggleShowNotification()()"
+        @click="toggleShowNotification()"
       />
     </q-card-actions>
   </q-card>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { api } from 'src/boot/axios'
-import { useQuasar } from 'quasar'
-import { useStore } from 'src/stores/mainStore'
-import IO from 'src/composables/socket'
+import { useQuasar, format } from 'quasar'
+import Notification from 'src/models/Notification'
 
+// props
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const props = defineProps(['notifications'])
 
-const emit = defineEmits(['cancel-notification'])
+// emits
+const emit = defineEmits(['close-notification', 'remove-notification'])
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const notifications = ref<any[]>([])
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const selectedNotification = ref<any>(null)
+// data
+const selectedNotification = ref<Notification | null>(null)
 const showNotificationSection = ref<boolean>(false)
 
+// setup
 const $q = useQuasar()
-const $store = useStore()
-const { socket } = IO()
+const { capitalize } = format
 
-
-function closeNotification() {
-  emit('cancel-notification')
-}
-async function startSocket() {
-  await socket.on('channel:notification',  data => {
-    console.log('MESSAGE RECEIVED', data)
-    notifications.value.push(data)
-  })
-}
-async function toggleShowNotification(notification: any = null, displayNotification = false) {
-  if (!displayNotification && !notification) notificationViewed()
+// methods
+async function toggleShowNotification(notification: Notification | null = null, displayNotification = false) {
+  if (!displayNotification && !notification) await notificationViewed()
   showNotificationSection.value = displayNotification
   selectedNotification.value = notification
 }
@@ -116,10 +111,10 @@ function notification(message: string, type: string) {
 }
 async function notificationViewed() {
   $q.loading.show()
-  await api.put(`notifications/${selectedNotification.value._id}`).then(
+  await api.put(`notifications/${selectedNotification.value?._id}`).then(
     () => {
       $q.loading.hide()
-      getNotifications()
+      emit('remove-notification', selectedNotification.value?._id)
     },
     error => {
       let errorMessage = null
@@ -135,23 +130,6 @@ async function notificationViewed() {
     }
   )
 }
-
-async function getNotifications() {
-  $q.loading.show()
-    await api.get('notifications').then(
-      response => {
-        $store.setTime(response.data.time)
-        notifications.value = response.data.notifications
-        $q.loading.hide()
-      },
-      error => {$q.loading.hide(), console.log(error)}
-    )
-}
-
-onMounted(() => {
-  startSocket()
-  getNotifications()
-})
 </script>
 
 <style scoped>

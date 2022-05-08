@@ -55,7 +55,6 @@ import { useStore } from 'src/stores/mainStore'
 import SideBar from 'src/components/SideBar.vue'
 import { api } from 'src/boot/axios'
 import { router } from 'src/router'
-import IO from 'src/composables/socket'
 
 const leftDrawerOpen = ref(false)
 const urlPath = `${location.protocol}//${location.hostname}${`:${location.port}` || ''}`
@@ -67,7 +66,6 @@ const pics = [
 ]
 
 const $store = useStore()
-const { socket } = IO()
 
 function goToProfile(): void {
   router.push({name: 'user', params: {id: $store.user?._id }})
@@ -79,14 +77,11 @@ function getRandonPic(): string {
   return pics[Math.floor((Math.random()*pics.length))]
 }
 async function getTimes(): Promise<void> {
-  socket.emit('notification', {test:'name'})
   await api.get('times').then(
     response => $store.setTime(response.data.time),
     error => console.log(error)
   )
 }
 
-onMounted(() => {
-  getTimes()
-})
+onMounted(() => getTimes())
 </script>
