@@ -350,7 +350,7 @@ function chooseTimeSlot(timeSlot: TableTimeSlot) {
 async function updateBooking() {
   await passValidation(v$.value.bookingDetails).then(async () => {
     $q.loading.show()
-    await api.put(`bookings/${booking.value?._id}`, {
+    await api.put(`v1/public/bookings/${booking.value?._id}`, {
       name: bookingDetails.value.name,
       surname: bookingDetails.value.surname,
       email: bookingDetails.value.email,
@@ -385,7 +385,7 @@ async function updateBooking() {
 }
 async function deleteBooking() {
   $q.loading.show()
-  await api.delete(`bookings/${booking.value?._id}`).then(
+  await api.delete(`v1/public/bookings/${booking.value?._id}`).then(
     response => {
       notification(response.data.message, 'success')
       $q.loading.hide() 
@@ -410,7 +410,7 @@ function getRandonPic() {
 }
 async function getBooking() {
   $q.loading.show()
-  await api.get(`bookings/${$route.params.id}`).then(
+  await api.get(`v1/public/bookings/${$route.params.id}`).then(
     response => {
       $q.loading.hide()
       booking.value = response.data.booking
@@ -423,7 +423,7 @@ async function getBooking() {
 }
 async function getTables() {
   $q.loading.show()
-  await api.get('tables').then(
+  await api.get('v1/public/tables').then(
     response => {
       $q.loading.hide()
       tables.value = response.data.tables
@@ -443,7 +443,7 @@ async function getTableData() {
       return
     }
     $q.loading.show()
-    await api.get('table-time-slots', { params: {
+    await api.get('v1/public/table-time-slots', { params: {
         tableId: selectedTable.value?._id || booking?.value?.table?._id,
         openingHour: $store.openingTimes?.opening_hour,
         closingHour: $store.openingTimes?.closing_hour,

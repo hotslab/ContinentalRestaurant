@@ -207,7 +207,7 @@ function notification(message: string, type: string) {
 async function createBooking() {
   await passValidation(v$.value.bookingDetails).then(async () => {
     $q.loading.show()
-    await api.post('bookings', {
+    await api.post('v1/public/bookings', {
       name: bookingDetails.name.value,
       surname: bookingDetails.surname.value,
       email: bookingDetails.email.value,
@@ -247,7 +247,7 @@ async function getTableData() {
     return
   }
   $q.loading.show()
-  await api.get('table-time-slots', { params: {
+  await api.get('v1/public/table-time-slots', { params: {
       tableId: props.table._id,
       openingHour: $store.openingTimes?.opening_hour,
       closingHour: $store.openingTimes?.closing_hour,

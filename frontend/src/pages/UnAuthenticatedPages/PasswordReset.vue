@@ -112,7 +112,7 @@ function notification(message: string, type: string) {
 async function forgotPassword(): Promise<void> {
   await passValidation(v$.value).then(async () => {
     Loading.show({delay: 100})
-    await api.post('forgot-password', {
+    await api.post('v1/public/forgot-password', {
       email: emailAddress.value
     }).then(
       response => {
@@ -139,7 +139,7 @@ async function forgotPassword(): Promise<void> {
 async function resetPassword(): Promise<void> {
   await passValidation(v$.value).then(async () => {
     Loading.show({delay: 100})
-    await api.put('reset-password', {
+    await api.put('v1/public/reset-password', {
       email: emailAddress.value,
       password: password.value,
       confirmPassword: confirmPasword.value

@@ -82,7 +82,7 @@ function notification(message: string, type: string) {
 async function updateTable() {
   await passValidation(v$.value).then(async () => {
     $q.loading.show()
-    await api.put(`tables/${props.table._id}`, {
+    await api.put(`v1/api/tables/${props.table._id}`, {
       name: name.value,
       description: description.value
     }).then(
@@ -110,7 +110,7 @@ async function updateTable() {
 async function createTable() {
   await passValidation(v$.value).then(async () => {
     $q.loading.show()
-    await api.post('tables', {
+    await api.post('v1/api/tables', {
       name: name.value,
       description: description.value
     }).then(

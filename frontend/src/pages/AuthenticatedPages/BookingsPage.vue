@@ -64,7 +64,7 @@ const $q = useQuasar()
 async function getBookings() {
   loading.value = true
   $q.loading.show()
-  await api.get('bookings', {params: { email: emailSearch.value }}).then(
+  await api.get('v1/public/bookings', {params: { email: emailSearch.value }}).then(
     response => {
       loading.value = false
       $q.loading.hide()

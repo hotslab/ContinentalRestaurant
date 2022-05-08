@@ -117,7 +117,7 @@ function notification(message: string, type: string) {
 async function register(): Promise<void> {
   await passValidation(v$.value.registerDetails).then(async () => {
     $q.loading.show()
-    await api.post('register', {
+    await api.post('v1/public/register', {
       name: registerDetails.name.value,
       surname: registerDetails.surname.value,
       email: registerDetails.email.value,

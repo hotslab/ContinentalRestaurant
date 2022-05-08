@@ -206,7 +206,7 @@ function notification(message: string, type: string) {
 }
 async function getTimes() {
   $q.loading.show()
-    await api.get('times').then(
+    await api.get('v1/public/times').then(
       response => {
         $store.setTime(response.data.time)
         timeDetails.value = response.data.time
@@ -221,7 +221,7 @@ async function getTimes() {
 async function updateTimes() {
   await passValidation(v$.value).then(async () => {
     $q.loading.show()
-    await api.post('times', {
+    await api.post('v1/api/times', {
       opening_hour: openingHour.value,
       closing_hour: closingHour.value,
       days_open: daysOpen.value,

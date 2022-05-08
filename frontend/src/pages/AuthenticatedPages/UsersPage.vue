@@ -64,7 +64,7 @@ function vuewUserProfile(user: User): void {
 }
 async function getUsers(): Promise<void> {
   $q.loading.show()
-  await api.get('users', {params: { 
+  await api.get('v1/api/users', {params: { 
     name: name.value, 
     surname: surname.value, 
     email: email.value,

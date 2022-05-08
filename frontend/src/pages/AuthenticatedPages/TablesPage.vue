@@ -163,7 +163,7 @@ function notification(message: string, type: string) {
 
 async function deleteTable() {
   $q.loading.show()
-  await api.delete(`tables/${selectedTable.value?._id}`).then(
+  await api.delete(`v1/api/tables/${selectedTable.value?._id}`).then(
     () => {
       closeDeleteTable()
       getTables()
@@ -185,7 +185,7 @@ async function deleteTable() {
 
 async function getTables() {
   $q.loading.show()
-  await api.get('tables').then(
+  await api.get('v1/public/tables').then(
     response => {
       $q.loading.hide()
       tables.value = response.data.tables

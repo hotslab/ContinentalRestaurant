@@ -208,7 +208,7 @@ async function updateUser(): Promise<void> {
   }
   await passValidation(v$.value.editUser).then(async () => {
     $q.loading.show()
-    await api.put(`users/${user.value?._id}`, {
+    await api.put(`v1/api/users/${user.value?._id}`, {
       name: editUser.name.value,
       surname: editUser.surname.value,
       email: editUser.email.value,
@@ -242,7 +242,7 @@ async function updateUser(): Promise<void> {
 }
 async function getUser(): Promise<void> {
   $q.loading.show()
-  await api.get(`users/${$route.params.id}`).then(
+  await api.get(`v1/api/users/${$route.params.id}`).then(
     response => {
       $q.loading.hide()
       user.value = response.data.user

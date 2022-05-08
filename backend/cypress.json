@@ -1,0 +1,4 @@
+{
+  "baseURL": "http://thecontinentalbackend:3100",
+  "integrationFolder": "cypress/integration/api-tests"
+}

@@ -1,8 +1,8 @@
 import "dotenv/config"
-import "../../utils/timezone"
 import { createServer } from "http"
 import { Server } from "socket.io"
 import redis from "../../utils/v1/redis"
+import "../../utils/v1/timezone"
 
 const httpSocketServer = createServer()
 const io = new Server(httpSocketServer, { cors: { origin: "*" } })

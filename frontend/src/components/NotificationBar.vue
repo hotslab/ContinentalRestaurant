@@ -122,7 +122,7 @@ function notification(message: string, type: string) {
 }
 async function notificationViewed() {
   $q.loading.show()
-  await api.put(`notifications/${selectedNotification.value?._id}`).then(
+  await api.put(`v1/public/notifications/${selectedNotification.value?._id}`).then(
     () => {
       $q.loading.hide()
       emit('remove-notification', selectedNotification.value?._id)

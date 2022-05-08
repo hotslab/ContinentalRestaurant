@@ -135,7 +135,7 @@ function deleteNotifcation(notificationToDeleteId: string) {
 }
 async function getNotifications() {
   $q.loading.show()
-    await api.get('notifications').then(
+    await api.get('v1/public/notifications').then(
       response => {
         notifications.value = response.data.notifications
         $q.loading.hide()

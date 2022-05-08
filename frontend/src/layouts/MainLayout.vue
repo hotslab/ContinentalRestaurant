@@ -77,7 +77,7 @@ function getRandonPic(): string {
   return pics[Math.floor((Math.random()*pics.length))]
 }
 async function getTimes(): Promise<void> {
-  await api.get('times').then(
+  await api.get('v1/public/times').then(
     response => $store.setTime(response.data.time),
     error => console.log(error)
   )

@@ -22,18 +22,7 @@ app.use(responseTime({ hrtime: true }))
 app.use(errorHandler)
 app.use(cors())
 
-app.use(jwt({ secret: `${process.env.JWT_SECRET}` })
-.unless({
-  path: [
-    /\/login/,
-    /\/register/, 
-    /\/forgot-password/,
-    /\/reset-password/,
-    /\/tables/,
-    /\/times/
-  ],
-})
-)
+app.use( jwt({ secret: `${process.env.JWT_SECRET}` }).unless({ path: [ /\/v1\/public/ ] }) )
 
 app.use(router.routes()).use(router.allowedMethods())
 

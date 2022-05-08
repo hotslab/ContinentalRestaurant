@@ -90,7 +90,7 @@ function notification(message: string, type: string) {
 async function login(): Promise<void> {
   await passValidation(v$.value.loginDetails).then(async () => {
     Loading.show({delay: 100})
-    await api.post('login', {
+    await api.post('v1/public/login', {
       email: loginDetails.email.value,
       password: loginDetails.password.value
     }).then(
