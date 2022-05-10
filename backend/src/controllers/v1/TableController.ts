@@ -47,10 +47,17 @@ export default {
         name: ctx.request.body.name,
         description: ctx.request.body.description 
       })
+      await table.save()
+      const newTable = await Table.findById(await table._id)
+      console.log(
+        newTable, 
+        process.env.NODE_ENV, 
+        process.env.MONGO_TEST_DB
+      )
       ctx.status = 200
       ctx.body = { 
-        message: 'Table created succssfully',
-        table: await table.save()
+        message: 'Table created successfully',
+        table: newTable
       }
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
@@ -61,7 +68,7 @@ export default {
     try {
       ctx.status = 200
       ctx.body = { 
-        message: 'Table created succssfully',
+        message: 'Table created successfully',
         table: await Table.findByIdAndUpdate(ctx.params.id, { $set: {
           name: ctx.request.body.name,
           description: ctx.request.body.description 

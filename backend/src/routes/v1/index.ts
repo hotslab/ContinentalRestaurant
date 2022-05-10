@@ -7,6 +7,40 @@ import NotificationController from '../../controllers/v1/NotificationController'
 
 const router = new Router()
 
+// base route
+router.get('/', (ctx) => {
+  ctx.status = 200
+  ctx.body = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            background-color: teal;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-direction: column;
+          }
+          h1 {
+            color: white;
+            text-align: center;
+          }
+          p {
+            font-family: verdana;
+            font-size: 20px;
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>The Continental Restaurant</h1>
+        <p>Welcome to the backend</p>
+      </body>
+    </html>
+  `
+})
+
 // authentification
 router.post('/v1/public/login', AuthentificationController.login)
 router.post('/v1/public/register', AuthentificationController.register)

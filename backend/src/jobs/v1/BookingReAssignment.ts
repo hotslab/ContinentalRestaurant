@@ -55,7 +55,7 @@ async function assignChosenTableInChosenHourIfAvaialbe(index: number, booking: B
       content: JSON.stringify(bookingPopulated)
     })
     await notification.save()
-    await redis.publish('notification', JSON.stringify(notification))
+    if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
     console.log({status: `Booking No. ${index + 1} assigned original chosen table at chosen time`, data: notification})
     return true
   } else return false
@@ -90,7 +90,7 @@ async function assignNewTableInChosenHourIfAvailable(index: number, booking: Boo
       content: JSON.stringify(bookingPopulated)
     })
     await notification.save()
-    await redis.publish('notification', JSON.stringify(notification))
+    if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
     console.log({
       status: `Booking No. ${index + 1} assigned a new table ${bookingPopulated.table.name} at chosen time`, 
       data: notification
@@ -119,7 +119,7 @@ async function assignChosenTableInNextHourIfAvailable(index: number, booking: Bo
         content: JSON.stringify(bookingPopulated)
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       console.log({
         status: `Booking No. ${index + 1} cancelled as restaurant times are closed`, 
         data: notification
@@ -150,7 +150,7 @@ async function assignChosenTableInNextHourIfAvailable(index: number, booking: Bo
         content: JSON.stringify(bookingPopulated)
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       console.log({
         status: `Booking No. ${index + 1} assigned original chosen table at new time ${hourFormat(bookingPopulated.hour)}`, 
         data: notification
@@ -180,7 +180,7 @@ async function assignNewTableInNextHourIfAvailable(index: number, booking: Booki
         content: JSON.stringify(bookingPopulated)
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       console.log({
         status: `Booking No. ${index + 1} cancelled as restaurant times are closed`, 
         data: notification
@@ -215,7 +215,7 @@ async function assignNewTableInNextHourIfAvailable(index: number, booking: Booki
         content: JSON.stringify(bookingPopulated)
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       console.log({
         status: `Booking No. ${index + 1} assigned new table ${bookingPopulated.table.name} at new time ${hourFormat(bookingPopulated.hour)}`, 
         data: notification

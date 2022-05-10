@@ -31,7 +31,7 @@
         </q-scroll-area>
         <SideBar v-else />
         <q-img v-if="$store.user" class="absolute-top" @click="goToProfile()" :src="getRandonPic()" clickable dimmed style="height: 150px">
-          <div class="absolute-bottom bg-transparent">
+          <div dimmed class="absolute-bottom bg-transparent">
             <q-avatar size="56px" class="q-mb-sm">
               <img src="https://cdn.quasar.dev/img/boy-avatar.png">
             </q-avatar>

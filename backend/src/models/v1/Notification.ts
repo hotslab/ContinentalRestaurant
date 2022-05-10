@@ -25,7 +25,7 @@ const NotificationSchema = new Schema({
   creator_role: {type: String, default: 'system' },
   receiver_email: {type: String, default: 'system' },
   receiver_role: {type: String, default: 'system' },
-  received: {type: String, default: false },
+  received: {type: Boolean, default: false },
   content: {type: String, required: true },
   created: { type: Date, default: Date.now() },
   updated: { type: Date, default: Date.now() }

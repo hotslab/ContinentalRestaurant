@@ -1,6 +1,6 @@
 <template>
   <q-page class="q-pa-md">
-    <q-card v-if="!showEdiSection" flat bordered class="no-shadow" style="width:300px;">
+    <q-card v-if="!showEdiSection" flat bordered class="no-shadow" style="width:320px;">
       <q-card-section class="flex justify-center items-center">
         <q-icon size="xl" color="primary" name="account_circle" />
       </q-card-section>
@@ -49,7 +49,7 @@
         </q-item>
       </q-list>    
     </q-card>
-    <q-card v-else>
+    <q-card v-else flat bordered class="no-shadow" style="width:320px;">
       <q-card-section class="flex justify-between items-center">
         <div class="text-h6 text-light text-primary">
           Edit {{ `${user?.name} ${user?.surname}` }}

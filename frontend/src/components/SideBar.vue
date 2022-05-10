@@ -16,7 +16,7 @@
       Tables
     </q-item-section>
   </q-item>
-  <q-item v-if="$store.user && $store.user.role == 'manager' "  @click="goTo('bookings')" clickable>
+  <q-item @click="goTo('bookings')" clickable>
     <q-item-section avatar>
       <q-btn dense unelevated color="secondary" round icon="book_online" />
     </q-item-section>
@@ -24,7 +24,7 @@
       Bookings
     </q-item-section>
   </q-item>
-  <q-item v-if="$store.user" @click="showTimeModal = true" clickable>
+  <q-item @click="showTimeModal = true" clickable>
     <q-item-section avatar>
       <q-btn dense unelevated color="secondary" round icon="schedule" />
     </q-item-section>
@@ -127,6 +127,8 @@ function startSocket() {
       notifications.value.push(data)
     if ($store.user && !isManager.value && (data.receiver_email == $store.user.email || data.receiver_email == 'all')) 
       notifications.value.push(data)
+    if (!$store.user && !isManager.value && data.receiver_email == 'all')
+      notifications.value.push(data)
   })
 }
 function deleteNotifcation(notificationToDeleteId: string) {
@@ -135,7 +137,10 @@ function deleteNotifcation(notificationToDeleteId: string) {
 }
 async function getNotifications() {
   $q.loading.show()
-    await api.get('v1/public/notifications').then(
+    await api.get('v1/public/notifications', { params: {
+      email: $store.user? $store.user?.email : '',
+      role: isManager.value ? 'manager' : 'user'
+    }}).then(
       response => {
         notifications.value = response.data.notifications
         $q.loading.hide()

@@ -5,7 +5,7 @@ import 'dotenv/config'
 import User from '../../models/v1/User'
 import Time from '../../models/v1/Time'
 import Table from '../../models/v1/Table'
-import '../../utils/timezone'
+import '../../utils/v1/timezone'
 
 const mongoUrl = `mongodb://${process.env.MONGO_USERNAME}:${process.env.MONGO_PASSWORD}@${process.env.MONGO_URL}:${process.env.MONGO_PORT}`
 mongoose.connect(mongoUrl, { dbName: process.env.MONGO_DB })
@@ -16,9 +16,9 @@ async function seedDatabase(): Promise<void> {
 await Time.findByIdAndUpdate(1, {
     $set: {
       _id: 1,
-      opening_hour: 8,
-      closing_hour: 18,
-      days_open: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+      opening_hour: 5,
+      closing_hour: 23,
+      days_open: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
     }
   }, 
   { upsert: true, new: true }

@@ -16,6 +16,12 @@ RUN chown -R node:node /root/.cache/Cypress
 
 WORKDIR /var/www
 
+COPY env.example /var/www/.env
+
+COPY ./backend/package*.json ./
+
+RUN npm i
+
 ADD backend-supervisor.conf /etc/supervisor/conf.d/backend-supervisor.conf
 
 RUN mkdir -p /var/log/supervisor

@@ -10,11 +10,13 @@
       </q-card-section>
       <q-separator />
       <q-card-section class="q-pt-md">
-        <div class="text-subtitle text-light">
-          Name: {{ `${booking?.name || '-'} ${booking?.surname || '-' }` }}
-        </div>
-        <div class="text-subtitle text-light">
-          Email: {{ booking?.email || 'No details provided' }}
+        <div v-if="$store.user">
+          <div class="text-subtitle text-light">
+            Name: {{ `${booking?.name || '-'} ${booking?.surname || '-' }` }}
+          </div>
+          <div class="text-subtitle text-light">
+            Email: {{ booking?.email || 'No details provided' }}
+          </div>
         </div>
         <div class="text-subtitle text-light">
           People: {{ booking?.people || 'No details provided' }}
@@ -30,7 +32,7 @@
         </div>
       </q-card-section>
       <q-separator />
-      <q-card-actions align="right">
+      <q-card-actions v-if="$store.user" align="right">
         <q-btn unelevated color="negative" @click="showBookingDeleteModal = true">
           Delete
         </q-btn>
@@ -151,24 +153,22 @@
     </q-card>
   </q-dialog>
   <q-dialog persistent v-model="showChangeTableDetailsModal" style="width: 500px">
-    <q-card v-if="!showTimeSlotSection" style="width: 320px">
+    <q-card v-if="!showTimeSlotSection" style="width: 400px">
       <q-card-section>
         <div class="text-h6 text-light text-primary">Choose Table</div>
       </q-card-section>
       <q-markup-table separator="horizontal" flat bordered>
         <thead class="bg-primary">
           <tr class="text-white text-bold">
+            <th></th>
             <th class="text-left">Table</th>
-            <th class="text-left">Description</th>
             <th class="text-right" width="30px">Select</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(table, index) in tables" :key="index">
+            <td><q-icon color="primary" size="sm" name="restaurant"/></td>
             <td class="text-left">{{ table.name || "-" }}</td>
-            <td class="text-left">
-              {{ (table.description.substring(0, 20)) + (table.description.length > 20?'...':'') }}
-            </td>
             <th class="text-right" width="30px"> 
               <q-icon class="cursor-pointer" size="sm" @click="showTimeSlot(table)" color="secondary" name="thumb_up" />
             </th>

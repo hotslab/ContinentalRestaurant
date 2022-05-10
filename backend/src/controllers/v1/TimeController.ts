@@ -48,7 +48,7 @@ export default {
         content: time,
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       ctx.status = 200
       ctx.body = { time: time }
     } catch (error: any) {

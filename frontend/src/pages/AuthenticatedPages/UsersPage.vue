@@ -39,6 +39,11 @@
         </tr>
       </tbody>
     </q-markup-table>
+    <q-card v-if="users.length <= 0" flat bordered class="no-shadow">
+      <q-card-section class="text-center">
+        <h4 class="text-primary">No records found</h4>
+      </q-card-section>
+    </q-card>
   </q-page>
 </template>
 

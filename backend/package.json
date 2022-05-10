@@ -14,16 +14,21 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon index.ts",
+    "dev": "cross-env NODE_ENV=testing nodemon index.ts",
+    "prod": "cross-env NODE_ENV=production nodemon index.ts",
     "socket": "nodemon socket.ts",
     "cron": "nodemon cron.ts",
     "seed": "ts-node ./src/seeder/v1/index.ts",
-    "test": "npx cypress run"
+    "start-server": "npm run dev",
+    "test": "npx cypress run",
+    "ci": "start-server-and-test start-server http://localhost:3102 test"
   },
   "dependencies": {
     "@koa/cors": "^3.3.0",
     "@koa/router": "^10.1.1",
     "argon2": "^0.28.5",
+    "cross-env": "^7.0.3",
+    "cypress-mongodb": "^2.1.3",
     "dotenv": "^16.0.0",
     "jsonwebtoken": "^8.5.1",
     "koa": "^2.13.4",
@@ -43,7 +48,9 @@
     "@types/koa__router": "^8.0.11",
     "@types/node": "^17.0.25",
     "cypress": "^9.6.0",
+    "cypress-localstorage-commands": "^1.7.0",
     "nodemon": "^2.0.15",
+    "start-server-and-test": "^1.14.0",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   }

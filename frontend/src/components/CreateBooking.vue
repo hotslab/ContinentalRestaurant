@@ -62,6 +62,7 @@
     </q-card-section>
     <q-card-section class="flex column justify-between q-pt-none">
       <q-input 
+        v-if="!$store.user || ($store.user && $store.user.role != 'user' )"
         v-model="bookingDetails.name.value" 
         stack-label 
         label="Name" 
@@ -69,6 +70,7 @@
         :error="v$.bookingDetails.name.$invalid"
       />
       <q-input 
+        v-if="!$store.user || ($store.user && $store.user.role != 'user' )"
         v-model="bookingDetails.surname.value" 
         stack-label 
         label="Surname" 
@@ -76,6 +78,7 @@
         :error="v$.bookingDetails.surname.$invalid"
       />
       <q-input 
+        v-if="!$store.user || ($store.user && $store.user.role != 'user' )"
         v-model="bookingDetails.email.value" 
         stack-label 
         label="Email" 
@@ -181,6 +184,13 @@ const v$ = useVuelidate(rules, { bookingDetails })
 const { passValidation, vuelidateErrors } = useValidations()
 
 // methods
+function setDefaults() {
+  if ($store.user && $store.user.role == 'user') {
+    bookingDetails.name.value = $store.user.name
+    bookingDetails.surname.value = $store.user.surname
+    bookingDetails.email.value = $store.user.email
+  }
+}
 function chooseTimeSlot(selectedTimeSlot: TableTimeSlot) {
   showBookingSection.value = true
   bookingDetails.date.value = searchDate.value
@@ -273,7 +283,10 @@ async function getTableData() {
 }
 
 // life cycle methods
-onMounted(() => getTableData())
+onMounted(() => {
+  getTableData()
+  setDefaults()
+})
 </script>
 
 <style scoped>

@@ -16,7 +16,7 @@ const TimeSchema = new Schema({
   _id: {type: Number, default: 1, required: true },
   opening_hour: { type: Number, default: 8 },
   closing_hour: { type: Number, default: 18 },
-  days_open: { type: Array, default: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']}, 
+  days_open: { type: Array, default: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']}, 
   created: { type: Date, default: Date.now() },
   updated: { type: Date, default: Date.now() }
 }, { collection: 'times' })

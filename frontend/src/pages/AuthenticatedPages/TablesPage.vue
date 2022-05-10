@@ -25,7 +25,7 @@
     </div>
     <div class="q-pa-md row items-start q-gutter-md">
       <q-card class="my-card" v-for="(table, index) in tables" :key="index">
-        <q-img :src="getRandonPic()" />
+        <q-img height="200px" :src="getRandonPic()" />
         <q-card-section class="q-pt-none">
           <div class="col text-h6 ellipsis">
             {{table.name}}
@@ -39,10 +39,18 @@
         <q-separator />
 
         <q-card-actions align="right">
-          <q-btn unelevated color="negative" @click="confirmDeleteTable(table)">
+          <q-btn v-if="$store.user && $store.user.role == 'manager' " 
+            unelevated 
+            color="negative" 
+            @click="confirmDeleteTable(table)"
+          >
             Delete
           </q-btn>
-          <q-btn unelevated color="secondary" @click="openCreateOrUpdateTableModal(table)">
+          <q-btn v-if="$store.user && $store.user.role == 'manager' "
+            unelevated 
+            color="secondary" 
+            @click="openCreateOrUpdateTableModal(table)"
+          >
             Edit
           </q-btn>
           <q-btn unelevated color="primary" @click="openReservationModal(table)">

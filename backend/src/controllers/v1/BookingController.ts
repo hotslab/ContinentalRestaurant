@@ -25,10 +25,13 @@ export default {
   index: async (ctx: Context): Promise<void> => {
     try {
       const query = ctx.request.query
+      let emailQuery = query.userType == 'user'
+        ? query.email
+        : { $regex: new RegExp(`${query.email}`, 'ig') }
       let queryData = {
-        email: { $regex: new RegExp(`${query.email}`, 'ig') },
-        date: { $gte: moment().format('YYYY-MM-DD') },
-        hour: { $gte: moment().format('H') },
+        email: emailQuery,
+        date: { $gte: query.date },
+        hour: { $gte: query.hour },
         status: { $in: ['queued', 'booked'] }
       }
       const bookings = await Booking.find(queryData).populate('table').sort({date: -1, updated: -1}).exec()
@@ -105,8 +108,7 @@ export default {
         content: bookingPopulated
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
-
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       ctx.status = 200
       ctx.body = { 
         booking: bookingPopulated, 
@@ -180,7 +182,7 @@ export default {
         content: JSON.stringify(bookingPopulated)
       })
       await notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       ctx.status = 200
       ctx.body = { booking: bookingPopulated, message: 'Booking has been updated succesfully' }
     } catch (error: any) {
@@ -205,8 +207,7 @@ export default {
         content: JSON.stringify(bookingPopulated)
       })
       notification.save()
-      await redis.publish('notification', JSON.stringify(notification))
-
+      if (process.env.NODE_ENV == 'production') await redis.publish('notification', JSON.stringify(notification))
       ctx.status = 200
       ctx.body = { message: 'Booking has been cancelled successfuly' }
     } catch (error: any) {

@@ -1,7 +1,7 @@
 <template>
   <q-card v-if="!showNotificationSection" class="full-width">
     <q-card-section>
-      <h6 class="text-primary text-weight-light no-margin">Notifications</h6>
+      <h6 class="text-primary text-weight-light no-margin">Notifications {{ notifications.length }}</h6>
     </q-card-section>
     <q-list>
       <q-item clickable v-for="(notification, index) in notifications" 

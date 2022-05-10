@@ -39,7 +39,7 @@
     <q-list>
       <q-item v-for="(day, index) in $store.openingTimes?.days_open" :key="index">
         <q-item-section>
-          <q-item-label class="text-light">{{ `${index + 1}. ${capitalize(day)}` }}</q-item-label>
+          <q-item-label class="text-light">{{ `${index + 1}. ${day}` }}</q-item-label>
         </q-item-section>
       </q-item>
       <q-item v-if="$store.openingTimes?.days_open.length <= 0">
@@ -85,7 +85,7 @@
         option-value="value"
         option-label="label"
         emit-value
-        label="Opning Time (24 hour format)"
+        label="Opening Hour (24 hour format)"
         :error-message="vuelidateErrors(v$.openingHour.$silentErrors)"
         :error="v$.openingHour.$invalid" 
       />
@@ -95,7 +95,7 @@
         option-value="value"
         option-label="label"
         emit-value
-        label="Closing Time (24 hour format)"
+        label="Closing Hour (24 hour format)"
         :error-message="vuelidateErrors(v$.closingHour.$silentErrors)"
         :error="v$.closingHour.$invalid" 
       />
@@ -142,7 +142,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { api } from 'src/boot/axios'
-import { useQuasar, format } from 'quasar'
+import { useQuasar } from 'quasar'
 import useValidations from 'src/composables/vuelidate'
 import { useVuelidate } from '@vuelidate/core'
 import { required, numeric, helpers } from '@vuelidate/validators'
@@ -159,13 +159,13 @@ const openingHour = ref<number | null | undefined>(null)
 const closingHour = ref<number | null | undefined>(null)
 const daysOpen = ref<Array<string> | [] | undefined>([])
 const dayOptions: Array<{label: string, value: string}> = [
-  {label:'Monday', value: 'monday'},
-  {label:'Tuesday', value: 'tuesday'},
-  {label:'Wednesday', value: 'wednesday'},
-  {label:'Thursday', value: 'thursday'},
-  {label:'Friday', value: 'friday'},
-  {label:'Saturday', value: 'saturday'},
-  {label:'Sunday', value: 'sunday'}
+  {label:'Monday', value: 'Monday'},
+  {label:'Tuesday', value: 'Tuesday'},
+  {label:'Wednesday', value: 'Wednesday'},
+  {label:'Thursday', value: 'Thursday'},
+  {label:'Friday', value: 'Friday'},
+  {label:'Saturday', value: 'Saturday'},
+  {label:'Sunday', value: 'Sunday'}
 ]
 const timeSlots: Array<TimeSlot> = timeOptions
 const validateOpeningHour = (param: number) => helpers.withParams(
@@ -188,7 +188,6 @@ const $q = useQuasar()
 const $store = useStore()
 const v$ = useVuelidate(rules, { openingHour, closingHour })
 const { passValidation, vuelidateErrors } = useValidations()
-const { capitalize } = format
 
 function toggleEdit(state = false) {
   showEditSection.value = state

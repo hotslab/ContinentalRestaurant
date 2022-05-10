@@ -1,4 +1,6 @@
 {
-  "baseURL": "http://thecontinentalbackend:3100",
-  "integrationFolder": "cypress/integration/api-tests"
+  "baseUrl": "http://thecontinentalbackend:3102",
+  "integrationFolder": "cypress/integration/api",
+  "video": false,
+  "screenshotOnRunFailure": false
 }
