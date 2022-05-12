@@ -410,7 +410,7 @@ function getRandonPic() {
 }
 async function getBooking() {
   $q.loading.show()
-  await api.get(`v1/public/bookings/${$route.params.id}`).then(
+  await api.get(`v1/public/bookings/${$route.query.id}`).then(
     response => {
       $q.loading.hide()
       booking.value = response.data.booking

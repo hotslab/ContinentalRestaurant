@@ -148,7 +148,7 @@ const editUser = {
   confirmPassword: ref<string | undefined>('')
 }
 
-const isAuthUser = computed(() => $store.user?._id == $route.params.id)
+const isAuthUser = computed(() => $store.user?._id == $route.query.id)
 const passwordActivated = computed(() => { if (editUser.password.value) {return true} else {return false} })
 const rules = computed(() => { return { 
   editUser: {
@@ -242,7 +242,7 @@ async function updateUser(): Promise<void> {
 }
 async function getUser(): Promise<void> {
   $q.loading.show()
-  await api.get(`v1/api/users/${$route.params.id}`).then(
+  await api.get(`v1/api/users/${$route.query.id}`).then(
     response => {
       $q.loading.hide()
       user.value = response.data.user

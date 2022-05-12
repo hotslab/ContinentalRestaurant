@@ -6,6 +6,9 @@
   "author": "Joseph Nyahuye <hotslices7@gmail.com>",
   "private": true,
   "scripts": {
+    "build": "quasar build -m spa",
+    "dev": "quasar dev -m spa",
+    "start": "quasar serve dist/spa --history --port 8800 --cors",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
@@ -15,6 +18,8 @@
     "@vuelidate/core": "^2.0.0-alpha.40",
     "@vuelidate/validators": "^2.0.0-alpha.28",
     "axios": "^0.21.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.0.1",
     "moment": "^2.29.3",
     "pinia": "^2.0.11",
     "pinia-plugin-persist": "^1.0.0",

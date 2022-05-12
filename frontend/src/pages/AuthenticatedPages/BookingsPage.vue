@@ -134,7 +134,7 @@ function hourFormat(hour: number | null): string {
     : '-'
 }
 function viewBooking(booking: Booking) {
-  router.push({name: 'booking', params: {id: booking._id } })
+  router.push({path: '/booking', query: {id: booking._id } })
 }
 
 onMounted(() => {

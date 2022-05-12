@@ -2,32 +2,37 @@ FROM node:18-bullseye-slim
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing supervisor \
     redis-server \
-    xvfb \
-    libglib2.0-0 \
-    libatk-bridge2.0-0 \
-    libatk1.0-0 \
+    curl \
+    nano
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing libgtk2.0-0 \
     libgtk-3-0 \
-    libgbm-dev
+    libgbm-dev \
+    libnotify-dev \
+    libgconf-2-4 \
+    libnss3 \
+    libxss1 \
+    libasound2 \ 
+    libxtst6 \
+    xauth  \
+    xvfb \
+    # for closing start-server npm package in testing using cypress
+    procps  
 
-# for cypress
+# for cypress installation
+RUN mkdir /root/.cache
 RUN mkdir /root/.cache/Cypress
-
-RUN chown -R node:node /root/.cache/Cypress
+RUN chown node:node -R /root/
 
 WORKDIR /var/www
 
-COPY env.example /var/www/.env
-
+COPY backend.env ./.env
 COPY ./backend/package*.json ./
-
 RUN npm i
+COPY ./backend ./
 
 ADD backend-supervisor.conf /etc/supervisor/conf.d/backend-supervisor.conf
 
 RUN mkdir -p /var/log/supervisor
-
-ADD backend-supervisor.conf /etc/supervisor/conf.d/backend-supervisor.conf
-
-# RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
 
 CMD /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf

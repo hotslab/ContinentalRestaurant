@@ -1,14 +1,17 @@
 FROM node:18-bullseye-slim
 
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing supervisor
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive ACCEPT_EULA=Y apt-get install -y --fix-missing supervisor curl nano
+RUN npm i -g @quasar/cli
 
 WORKDIR /var/www
 
-COPY /etc/timezone /etc/timezone:ro
+COPY ./frontend/package*.json ./
 
-COPY /etc/localtime /etc/localtime:ro
+RUN npm i
 
-RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure tzdata
+COPY ./frontend ./
+
+RUN quasar build -m spa
 
 ADD frontend-supervisor.conf /etc/supervisor/conf.d/frontend-supervisor.conf
 

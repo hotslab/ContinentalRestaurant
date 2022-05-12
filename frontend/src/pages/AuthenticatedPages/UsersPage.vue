@@ -65,7 +65,7 @@ const $q = useQuasar()
 const $store = useStore()
 
 function vuewUserProfile(user: User): void {
-  router.push({name: 'user', params: { id: user._id}})
+  router.push({path: '/user', query: { id: user._id}})
 }
 async function getUsers(): Promise<void> {
   $q.loading.show()

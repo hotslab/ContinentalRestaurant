@@ -133,7 +133,7 @@ function openReservationModal(table: Table) {
 function closeReservation(newBooking: Booking | null = null) {
   selectedTable.value = null
   showReservationModal.value = false
-  if (newBooking) router.push({name: 'booking', params: {id: newBooking._id } })
+  if (newBooking) router.push({path: '/booking', query: {id: newBooking._id } })
 }
 
 function openCreateOrUpdateTableModal(table: Table | null = null) {

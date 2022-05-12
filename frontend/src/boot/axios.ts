@@ -17,8 +17,9 @@ declare module '@vue/runtime-core' {
 // for each client)
 const $store = useStore()
 
-
-const api = axios.create({ baseURL: 'http://localhost:3100/' })
+const api = import.meta.env.PROD
+  ? axios.create() 
+  : axios.create({baseURL: 'http://localhost:3100/'})
 
 api.interceptors.request.use(
   (config: AxiosRequestConfig) => {

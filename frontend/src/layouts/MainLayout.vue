@@ -68,7 +68,7 @@ const pics = [
 const $store = useStore()
 
 function goToProfile(): void {
-  router.push({name: 'user', params: {id: $store.user?._id }})
+  router.push({path: '/user', query: {id: $store.user?._id }})
 }
 function toggleLeftDrawer(): void {
   leftDrawerOpen.value = !leftDrawerOpen.value
