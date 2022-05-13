@@ -32,6 +32,7 @@ docker-compose up
 
 #### 3. Seeding the MongoDB database with essential data
 - After it has finished installing and starting the docker containers, open another terminal window and log into the backend container to run the database seeder.
+- Please note if you run this command again it will drop your database and clear all your saved records.
 
 ```
 docker exec -it thecontinentalbackend bash
