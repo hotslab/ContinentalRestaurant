@@ -13,7 +13,7 @@ The first container is the **backend** which houses KoaJS, Redis, Socket.IO and 
 - Open a new terminal window or tab and clone the repository from Github
 
 ```
-$ git clone git@github.com:hotslab/TheContinentalRestaurant.git
+git clone git@github.com:hotslab/TheContinentalRestaurant.git
 ```
 
 
@@ -21,9 +21,9 @@ $ git clone git@github.com:hotslab/TheContinentalRestaurant.git
 - Go inside the cloned project folder and then run docker-compose as shown below:
 
 ```
-$ cd TheContinentalRestaurant
+cd TheContinentalRestaurant
 
-$ docker-compose up
+docker-compose up
 ```
 
 - Wait for the docker container to finish installing. Please be aware this may take a while.
@@ -34,9 +34,9 @@ $ docker-compose up
 - After it has finished installing and starting the docker containers, open another terminal window and log into the backend container to run the database seeder.
 
 ```
-$ docker exec -it thecontinentalbackend bash
+docker exec -it thecontinentalbackend bash
 
-$ npm run seed
+npm run seed
 ```
 
 #### 4. Running unit tests
@@ -44,7 +44,7 @@ $ npm run seed
 - In the same terminal window you can paste and run the following command to launch the unit tests for the api.
 
 ```
-$ npm run ci
+npm run ci
 ```
 
 #### 5. Accessing the website
