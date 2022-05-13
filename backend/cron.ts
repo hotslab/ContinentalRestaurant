@@ -12,5 +12,5 @@ mongoose.connection.on('error', console.error)
 // cron runs every 2 minutes
 cron.schedule("*/2 * * * *", async () => await BookingReAssignment())
 
-//
-cron.schedule("*/2 * * * *", async () => await CloseExpiredBookings())
+// cron runs every 30 minutes
+cron.schedule("*/30 * * * *", async () => await CloseExpiredBookings())

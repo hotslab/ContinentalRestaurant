@@ -17,10 +17,10 @@ describe('Bookings Crud', () => {
       method: 'GET',
       url: 'v1/public/bookings',
       qs: {
-        email: '', // get all emails
+        booking_id: '',
+        email: '',
         date: moment().format('YYYY-MM-DD'),
         hour: moment().format('H'),
-        status: 'booked' 
       }
     }).should((response) => {
       expect(response.status).to.eq(200)

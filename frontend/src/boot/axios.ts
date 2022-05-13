@@ -2,6 +2,7 @@ import { boot } from 'quasar/wrappers'
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosError,  AxiosResponse } from 'axios'
 import { router } from 'src/router'
 import { useStore } from 'src/stores/mainStore'
+import { Notify } from 'quasar'
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -48,10 +49,21 @@ api.interceptors.response.use(
 function checkIfUnauthorised(error: any) {
   const authErrors = ['Authentication Error', 'Authentication error', 'jwt expired']
   if (authErrors.includes(error.response.data.error)) {
+    notification('You have been logged out as you are unauthorised due to expired sesssion or no authentification.', 'error')
     $store.setUser(null)
     router.push({ name: 'login' })
     return 
   } 
+}
+
+
+function notification(message: string, type: string) {
+  Notify.create({
+    message: message,
+    color: type == 'error' ? 'red' : 'cyan',
+    timeout: 2000,
+    position: 'top',
+  })
 }
 
 

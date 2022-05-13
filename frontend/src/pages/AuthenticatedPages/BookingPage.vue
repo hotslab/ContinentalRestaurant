@@ -3,35 +3,54 @@
     <q-card v-if="!showEditSection" flat bordered class="no-shadow" style="width:300px;">
       <q-img :src="getRandonPic()" />
       <q-card-section>
-        <div class="text-h6 text-light text-primary">
+        <div class="text-caption text-grey">Booking ID</div>
+        <div class="text-h6 text-primary">{{ booking?._id }}</div>
+      </q-card-section>
+      <q-separator/>
+      <q-card-section>
+        <div class="text-h6 text-light text-secondary">
           {{booking?.table?.name || '-'}}
         </div>
-        <div class="text-subtitle">{{ booking?.table.description || '-'}}</div>
+        <div class="text-caption">{{ booking?.table?.description || '-'}}</div>
       </q-card-section>
-      <q-separator />
-      <q-card-section class="q-pt-md">
-        <div v-if="$store.user">
-          <div class="text-subtitle text-light">
-            Name: {{ `${booking?.name || '-'} ${booking?.surname || '-' }` }}
-          </div>
-          <div class="text-subtitle text-light">
-            Email: {{ booking?.email || 'No details provided' }}
-          </div>
-        </div>
-        <div class="text-subtitle text-light">
-          People: {{ booking?.people || 'No details provided' }}
-        </div>
-        <div class="text-subtitle text-light">
-          Status: {{ booking?.status || 'No details provided' }}
-        </div>
-        <div class="text-subtitle text-light">
-          Date: {{ booking?.date ? moment(booking?.date).format('YYYY-MM-DD') : 'No details provided' }}
-        </div>
-        <div class="text-subtitle text-light">
-          Time: {{ booking?.hour ?  booking?.hour < 10 ? `0${booking?.hour}:00` : `${booking?.hour}:00` : 'No details provided' }}
-        </div>
-      </q-card-section>
-      <q-separator />
+      <q-list bordered separator>
+        <q-item v-if="$store.user && (isManager || $store.user.email == booking?.email)">
+          <q-item-section>
+            <q-item-label caption>Name</q-item-label>
+            <q-item-label>{{ `${booking?.name || '-'} ${booking?.surname || '-' }` }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item v-if="$store.user && (isManager || $store.user.email == booking?.email)">
+          <q-item-section>
+            <q-item-label caption>Email</q-item-label>
+            <q-item-label>{{ booking?.email || 'No details provided' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label caption>People</q-item-label>
+            <q-item-label>{{ booking?.people || 'No details provided' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label caption>Status</q-item-label>
+            <q-item-label>{{ booking?.status || 'No details provided' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label caption>Date</q-item-label>
+            <q-item-label>{{ booking?.date ? moment(booking?.date).format('YYYY-MM-DD') : 'No details provided' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item>
+          <q-item-section>
+            <q-item-label caption>Time</q-item-label>
+            <q-item-label>{{ booking?.hour ?  booking?.hour < 10 ? `0${booking?.hour}:00` : `${booking?.hour}:00` : 'No details provided' }}</q-item-label>
+          </q-item-section>
+        </q-item>
+      </q-list>
       <q-card-actions v-if="$store.user" align="right">
         <q-btn unelevated color="negative" @click="showBookingDeleteModal = true">
           Delete
@@ -44,13 +63,14 @@
     <!--EDITING--->
     <q-card v-else flat bordered class="no-shadow" style="width:300px;">
       <q-card-section>
-        <div class="text-h6 text-light text-primary">Edit {{ booking?.table.name || 'booking' }}</div>
+        <div class="text-caption text-grey">Edit Booking</div>
+        <div class="text-h6 text-primary">{{ booking?._id }}</div>
       </q-card-section>
       <q-list>
         <q-item>
           <q-item-section>
-            <q-item-label>Table</q-item-label>
-            <q-item-label caption>{{ selectedTable ? selectedTable.name : booking?.table.name }}</q-item-label>
+            <q-item-label caption>Table</q-item-label>
+            <q-item-label>{{ selectedTable ? selectedTable.name : booking?.table?.name }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-icon color="brown" name="restaurant" />
@@ -58,8 +78,8 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>Date</q-item-label>
-            <q-item-label caption>
+            <q-item-label caption>Date</q-item-label>
+            <q-item-label>
               {{ 
                 searchDate 
                 ? searchDate 
@@ -73,8 +93,8 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>Time</q-item-label>
-            <q-item-label caption>
+            <q-item-label caption>Time</q-item-label>
+            <q-item-label>
               {{ 
                 selectedTimeSlot 
                 ? selectedTimeSlot.hour
@@ -88,7 +108,7 @@
         </q-item>
         <q-item clickable @click="openEditDateAndTime()">
             <q-item-section>
-              <q-item-label>Click here to change table, date and time</q-item-label>
+              <q-item-label caption>Click here to change table, date and time</q-item-label>
             </q-item-section>
             <q-item-section avatar>
               <q-icon color="primary" name="edit" />
@@ -160,14 +180,14 @@
       <q-markup-table separator="horizontal" flat bordered>
         <thead class="bg-primary">
           <tr class="text-white text-bold">
-            <th></th>
+            <th class="text-left">#</th>
             <th class="text-left">Table</th>
             <th class="text-right" width="30px">Select</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(table, index) in tables" :key="index">
-            <td><q-icon color="primary" size="sm" name="restaurant"/></td>
+            <td class="text-left"><q-icon color="primary" size="sm" name="restaurant"/></td>
             <td class="text-left">{{ table.name || "-" }}</td>
             <th class="text-right" width="30px"> 
               <q-icon class="cursor-pointer" size="sm" @click="showTimeSlot(table)" color="secondary" name="thumb_up" />

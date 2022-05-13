@@ -31,7 +31,7 @@
         </q-scroll-area>
         <SideBar v-else />
         <q-img v-if="$store.user" class="absolute-top" @click="goToProfile()" :src="getRandonPic()" clickable dimmed style="height: 150px">
-          <div dimmed class="absolute-bottom bg-transparent">
+          <div class="absolute-bottom bg-transparent">
             <q-avatar size="56px" class="q-mb-sm">
               <img src="https://cdn.quasar.dev/img/boy-avatar.png">
             </q-avatar>
@@ -58,12 +58,7 @@ import { router } from 'src/router'
 
 const leftDrawerOpen = ref(false)
 const urlPath = `${location.protocol}//${location.hostname}${`:${location.port}` || ''}`
-const pics = [
-  `${urlPath}/foodpics/001.jpg`,
-  `${urlPath}/foodpics/002.jpg`,
-  `${urlPath}/foodpics/003.jpg`,
-  `${urlPath}/foodpics/004.jpg`,
-]
+const pics = [`${urlPath}/foodpics/004.jpg`]
 
 const $store = useStore()
 

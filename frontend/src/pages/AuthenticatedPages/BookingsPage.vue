@@ -7,6 +7,12 @@
           <q-btn round dense flat icon="search" @click="getBookings()" />
         </q-card-section>
         <q-card-section class="search-field">
+          <q-input class="search-div" 
+            stack-label
+            label="Booking ID"
+            v-model="bookingID" 
+            placeholder="Booking ID" 
+          />
           <q-select 
             class="search-div"
             v-model="hourSearch" 
@@ -35,7 +41,6 @@
             label="Email"
             v-model="emailSearch" 
             placeholder="Email" 
-            v-if="($store.user &&  $store.user.role == 'manager') || !$store.user "
           />
         </q-card-section>
       </q-card>
@@ -44,27 +49,35 @@
       <q-markup-table separator="horizontal" flat bordered>
         <thead class="bg-primary">
           <tr class="text-white text-bold">
+            <th class="text-left">Booking ID</th>
             <th class="text-left">Table</th>
             <th v-if="$store.user" class="text-left">Email</th>
             <th v-if="$store.user" class="text-left">Name</th>
             <th v-if="$store.user" class="text-left">Surname</th>
-            <th class="text-left">People</th>
-            <th class="text-left">Date</th>
-            <th class="text-left">Hour</th>
-            <th class="text-left">Status</th>
+            <th class="text-left" width="30px">People</th>
+            <th class="text-left" width="50px">Date</th>
+            <th class="text-left" width="30px">Hour</th>
+            <th class="text-left" width="30px">Status</th>
             <th class="text-right" width="30px">View</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="(booking, index) in bookings" :key="index">
+            <td>{{ booking._id }}</td>
             <td class="text-left">{{ booking.table?.name || "-" }}</td>
-            <td v-if="$store.user" class="text-left">{{ booking.email || "-" }}</td>
-            <td v-if="$store.user" class="text-left">{{ booking.name || "-" }}</td>
-            <td v-if="$store.user" class="text-left">{{ booking.surname || "-" }}</td>
-            <td class="text-left">{{ booking.people || "-" }}</td>
-            <td class="text-left">{{ booking.date ? moment(booking.date).format('YYYY-MM-DD') : "-" }}</td>
-            <td class="text-left">{{ hourFormat(booking.hour) }}</td>
-            <td class="text-left">{{ booking.status || "-" }}</td>
+            <td v-if="$store.user" class="text-left">
+              {{ isManager ? booking.email : (booking.email == $store.user.email ? booking.email : '🚫') }}
+            </td>
+            <td v-if="$store.user" class="text-left">
+              {{ isManager ? booking.name : (booking.email == $store.user.email ? booking.email : '🚫') }}
+            </td>
+            <td v-if="$store.user" class="text-left">
+              {{ isManager ? booking.surname : (booking.email == $store.user.email ? booking.email : '🚫') }}
+            </td>
+            <td class="text-left" width="30px">{{ booking.people || "-" }}</td>
+            <td class="text-left" width="50px">{{ booking.date ? moment(booking.date).format('YYYY-MM-DD') : "-" }}</td>
+            <td class="text-left" width="30px">{{ hourFormat(booking.hour) }}</td>
+            <td class="text-left" width="30px">{{ booking.status || "-" }}</td>
             <th class="text-right" width="30px"> 
               <q-icon @click="viewBooking(booking)" size="sm" color="secondary" name="visibility" />
             </th>
@@ -81,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, Ref, onMounted } from 'vue'
+import { ref, Ref, onMounted, computed } from 'vue'
 import { api } from 'src/boot/axios'
 import { useQuasar } from 'quasar'
 import { router } from 'src/router'
@@ -91,6 +104,7 @@ import { useStore } from 'src/stores/mainStore'
 import { TimeSlot, timeOptions } from 'src/models/TimeSlot'
 
 const loading = ref<boolean>(false)
+const bookingID = ref<string>('')
 const emailSearch = ref<string>('')
 const dateSearch = ref<string>(moment().format('YYYY-MM-DD'))
 const hourSearch = ref<string>(moment().format('H'))
@@ -100,19 +114,17 @@ const timeSlots: Array<TimeSlot> = timeOptions
 const $q = useQuasar()
 const $store = useStore()
 
-
+const isManager = computed(() => {
+  return $store.user && $store.user.role =='manager'
+}) 
 async function getBookings() {
   loading.value = true
   $q.loading.show()
-  let userType
-  if ($store.user && $store.user.role == 'manager') userType = 'manager'
-  if ($store.user && $store.user.role == 'user') userType = 'user'
-  if (!$store.user) userType = 'visitor'
   await api.get(
     'v1/public/bookings', {
       params: { 
-        userType: userType,
-        email: userType == 'user' ? $store.user?.email : emailSearch.value,
+        booking_id: bookingID.value,
+        email: emailSearch.value,
         date: dateSearch.value,
         hour: hourSearch.value
       }

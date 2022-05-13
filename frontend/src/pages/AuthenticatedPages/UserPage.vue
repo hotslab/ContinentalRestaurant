@@ -2,7 +2,7 @@
   <q-page class="q-pa-md">
     <q-card v-if="!showEdiSection" flat bordered class="no-shadow" style="width:320px;">
       <q-card-section class="flex justify-center items-center">
-        <q-icon size="xl" color="primary" name="account_circle" />
+        <q-icon size="150px" color="primary" name="account_circle" />
       </q-card-section>
       <q-card-section class="flex justify-between items-center">
         <div class="text-h6 text-light text-primary">
@@ -13,8 +13,8 @@
       <q-list>
         <q-item>
           <q-item-section>
-            <q-item-label>Name</q-item-label>
-            <q-item-label caption>{{ user?.name || '-' }}</q-item-label>
+            <q-item-label caption>Name</q-item-label>
+            <q-item-label>{{ user?.name || '-' }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-icon color="orange" name="person" />
@@ -22,8 +22,8 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>Surname</q-item-label>
-            <q-item-label caption>{{ user?.surname || '-' }}</q-item-label>
+            <q-item-label caption>Surname</q-item-label>
+            <q-item-label>{{ user?.surname || '-' }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-icon color="secondary" name="person_outline" />
@@ -31,8 +31,8 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>Email</q-item-label>
-            <q-item-label caption>{{ user?.email }}</q-item-label>
+            <q-item-label caption>Email</q-item-label>
+            <q-item-label>{{ user?.email }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-icon color="red" name="email" />
@@ -40,8 +40,8 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-item-label>Role</q-item-label>
-            <q-item-label caption>{{ user?.role }}</q-item-label>
+            <q-item-label caption>Role</q-item-label>
+            <q-item-label>{{ user?.role }}</q-item-label>
           </q-item-section>
           <q-item-section avatar>
             <q-icon color="primary" name="security" />
@@ -78,6 +78,7 @@
           :error="v$.editUser.email.$invalid"
         />
         <q-select 
+          v-if="$store.user?.role == 'manager' "
           v-model="editUser.role.value" 
           :options="roles"
           label="Role"

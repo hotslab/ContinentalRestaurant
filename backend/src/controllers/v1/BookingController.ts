@@ -25,18 +25,34 @@ export default {
   index: async (ctx: Context): Promise<void> => {
     try {
       const query = ctx.request.query
-      let emailQuery = query.userType == 'user'
-        ? query.email
-        : { $regex: new RegExp(`${query.email}`, 'ig') }
-      let queryData = {
-        email: emailQuery,
+      const queryData = {
+        email: { $regex: query.email, $options: "i" },
         date: { $gte: query.date },
         hour: { $gte: query.hour },
-        status: { $in: ['queued', 'booked'] }
+        status: { $in: ["queued", "booked"] },
       }
-      const bookings = await Booking.find(queryData).populate('table').sort({date: -1, updated: -1}).exec()
-      ctx.status = 200
-      ctx.body = { bookings: bookings }
+      if (query.booking_id) queryData['_id'] = query.booking_id
+      await Booking.find(queryData)
+        .populate("table")
+        .sort({ date: -1, updated: -1 })
+        .then(bookings => {
+          if (!bookings) {
+            ctx.status = 200;
+            ctx.body = { bookings: [] }
+          } else {
+            ctx.status = 200;
+            ctx.body = { bookings: bookings }
+          }
+        })
+        .catch((error) => {
+          if (error.message.indexOf("Cast to ObjectId failed") !== -1) {
+            ctx.status = 200;
+            ctx.body = { bookings: [], message: "Data was not found" };
+          } else {
+            ctx.status = error.statusCode || error.status || 500;
+            ctx.body = { message: error.message };
+          }
+        })
     } catch (error: any) {
       ctx.status = error.statusCode || error.status || 500;
       ctx.body = { message: error.message }
@@ -95,9 +111,9 @@ export default {
       await booking.save()
       const bookingPopulated: BookingInterface = await Booking.findById(booking._id).populate('table').exec()
       const notification = await new Notification({
-        type: `New Booking by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
+        type: `New Booking ${bookingPopulated._id} by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
         description: `
-          New booking created for table ${bookingPopulated.table.name} on ${bookingPopulated.date} at
+          New booking created for table ${bookingPopulated.table.name} on ${moment(bookingPopulated.date).format('YYYY-MM-DD')} at
           ${formatedHour(bookingPopulated.hour)} with ${bookingPopulated.people} people attending.
         `,
         created_by: data.creator_email,
@@ -169,9 +185,9 @@ export default {
       }).exec()
       const bookingPopulated: BookingInterface = await Booking.findById(ctx.params.id).populate('table').exec()
       const notification = await new Notification({
-        type: `Updated Booking by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
+        type: `Updated Booking ${bookingPopulated._id} by ${data.creator_role == 'user' ? data.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
         description: `
-          Booking details updated for table ${bookingPopulated.table.name} on ${bookingPopulated.date} at
+          Booking details updated for table ${bookingPopulated.table.name} on ${moment(bookingPopulated.date).format('YYYY-MM-DD')} at
           ${formatedHour(bookingPopulated.hour)} with ${bookingPopulated.people} people attending.
         `,
         created_by: data.creator_email,
@@ -197,8 +213,8 @@ export default {
       await booking.save()
       const bookingPopulated: BookingInterface = await Booking.findById(ctx.params.id).populate('table').exec()
       const notification = await new Notification({
-        type: `Booking cancelled by ${query.creator_role == 'user' ? query.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
-        description: 'updating',
+        type: `Booking ${bookingPopulated._id} cancelled by ${query.creator_role == 'user' ? query.creator_email : 'management'} for table ${bookingPopulated.table.name}`,
+        description: 'Booking cancelled.',
         created_by: query.creator_email,
         creator_role: query.creator_role,
         receiver_email: bookingPopulated.email,

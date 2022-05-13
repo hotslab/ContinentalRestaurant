@@ -17,8 +17,15 @@
         </q-card-section>
         <q-card-section class="full-width flex justify-between items-center">
           <p>
-            Book your table below. Please note tables are booked in advance for the next hour up until closing time. You cannot book for the current hour. <br/>
-            If your tables was already booked by another person you will be put in a wating queue should it be cancelled before the dining session starts.   
+            Book your table below. Please note tables are booked in advance for the 
+            next hour up until closing time. You cannot book for this current hour 
+            as there is not time for table preparation. 
+          </p>
+          <p>
+            If your preferred table was already booked by another person you will have to
+            book another alternative table. If all tables are booked at your preferred hour yu will be placed 
+            on a waiting list. If a table becomes available in that same hour you will be automaticaly booked, 
+            otherwise you will be moved to the next available hour.
           </p>
         </q-card-section>
       </q-card>
